@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'routes.dart';
+import 'screens/dashboard_screen.dart';
 import 'screens/welcome_screen.dart';
 
 void main() async {
@@ -16,8 +17,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ByteBank',
-      initialRoute: Routes.welcome,
-      routes: {Routes.welcome: (context) => const WelcomeScreen()},
+      initialRoute: Routes.dashboard,
+      routes: {
+        Routes.welcome: (context) => const WelcomeScreen(),
+        Routes.dashboard: (context) => const DashboardScreen(),
+      },
     );
   }
 }
