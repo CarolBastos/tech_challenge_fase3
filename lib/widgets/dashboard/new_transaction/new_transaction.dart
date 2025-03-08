@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
+import 'package:tech_challenge_fase3/widgets/custom_button.dart';
 
 class NewTransaction extends StatefulWidget {
   @override
@@ -55,16 +56,29 @@ class _NewTransactionState extends State<NewTransaction> {
           decoration: InputDecoration(
             labelText: 'Tipo de Transação',
             border: OutlineInputBorder(),
+            filled: true,
+            fillColor: AppColors.white,
           ),
           isExpanded: true,
+        ),
+        SizedBox(height: 20),
+        Text(
+          'Valor',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.white,
+          ),
         ),
         SizedBox(height: 20),
         TextFormField(
           controller: valorController,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
-            labelText: 'Valor',
+            labelText: '00,00',
             border: OutlineInputBorder(),
+            filled: true,
+            fillColor: AppColors.white,
           ),
           validator: (value) {
             if (value!.isEmpty) {
@@ -74,11 +88,12 @@ class _NewTransactionState extends State<NewTransaction> {
           },
         ),
         SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: concluirTransacao,
-          child: Text('Concluir a Transação'),
-          style: ElevatedButton.styleFrom(
-            minimumSize: Size(double.infinity, 50),
+        Center(
+          child: CustomButton(
+            onPressed: concluirTransacao,
+            text: 'Concluir a transação',
+            backgroundColor: AppColors.darkTeal,
+            textColor: Colors.white,
           ),
         ),
       ],
