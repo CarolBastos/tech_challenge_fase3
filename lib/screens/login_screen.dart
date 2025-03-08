@@ -116,12 +116,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _validate() {
     if (_emailController.text.isEmpty) {
-      _errorMessage = 'Inform the email';
+      _errorMessage = 'Informe o email';
       return false;
     }
 
     if (_passwordController.text.isEmpty) {
-      _errorMessage = 'Inform the password';
+      _errorMessage = 'Informe a senha';
       return false;
     }
 

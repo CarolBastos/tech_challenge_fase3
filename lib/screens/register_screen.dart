@@ -1,11 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tech_challenge_fase3/routes.dart';
 import 'package:tech_challenge_fase3/screens/login_screen.dart';
 
 import '../app_colors.dart';
 import '../widgets/custom_text_field.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
+
+  @override
+  _RegisterScreenState createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  String _errorMessage = '';
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _nameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +42,7 @@ class RegisterScreen extends StatelessWidget {
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 15),
               Text(
                 "Abrir Conta",
                 style: TextStyle(
@@ -30,16 +51,24 @@ class RegisterScreen extends StatelessWidget {
                   color: AppColors.black,
                 ),
               ),
-              const SizedBox(height: 32),
-              const CustomTextField(
-                labelText: 'Email',
-                placeholder: 'Digite seu email',
+              const SizedBox(height: 15),
+              CustomTextField(
+                labelText: 'Nome',
+                placeholder: 'Digite seu nome completo',
+                controller: _nameController,
               ),
               const SizedBox(height: 10),
-              const CustomTextField(
+              CustomTextField(
+                labelText: 'Email',
+                placeholder: 'Digite seu email',
+                controller: _emailController,
+              ),
+              const SizedBox(height: 10),
+              CustomTextField(
                 labelText: 'Senha',
                 placeholder: 'Digite sua senha',
                 isPassword: true,
+                controller: _passwordController,
               ),
               const SizedBox(height: 10),
               TextButton(
@@ -58,7 +87,7 @@ class RegisterScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: _register,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.error,
                   foregroundColor: Colors.white,
@@ -75,5 +104,39 @@ class RegisterScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _register() async {
+    try {
+      bool isValid = _validate();
+      if (!isValid) {
+        setState(() {});
+        return;
+      }
+
+      await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      Navigator.pushReplacementNamed(context, Routes.login);
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    }
+  }
+
+  bool _validate() {
+    if (_emailController.text.isEmpty) {
+      _errorMessage = 'Informe o email';
+      return false;
+    }
+
+    if (_passwordController.text.isEmpty) {
+      _errorMessage = 'Informe a senha';
+      return false;
+    }
+
+    return true;
   }
 }
