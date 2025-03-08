@@ -56,6 +56,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: _passwordController,
               ),
               const SizedBox(height: 10),
+              if (_errorMessage.isNotEmpty)
+                Text(
+                  _errorMessage,
+                  style: const TextStyle(
+                    color: AppColors.error,
+                    fontSize: 14.0,
+                  ),
+                ),
+              const SizedBox(height: 10),
               TextButton(
                 onPressed: () {
                   Navigator.pushReplacementNamed(context, Routes.register);
@@ -79,14 +88,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 child: const Text('Entrar'),
               ),
-              if (_errorMessage.isNotEmpty)
-                Text(
-                  _errorMessage,
-                  style: const TextStyle(
-                    color: AppColors.error,
-                    fontSize: 14.0,
-                  ),
-                ),
             ],
           ),
         ),
@@ -116,12 +117,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _validate() {
     if (_emailController.text.isEmpty) {
-      _errorMessage = 'Inform the email';
+      _errorMessage = 'Informe o email';
       return false;
     }
 
     if (_passwordController.text.isEmpty) {
-      _errorMessage = 'Inform the password';
+      _errorMessage = 'Informe a senha';
       return false;
     }
 
