@@ -12,22 +12,19 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  void _showAuthModal(BuildContext context, Widget loginScreen) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return SingleChildScrollView(child: loginScreen);
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.black,
-        title: const Text('Welcome page'),
+        title: const Text(
+          'Welcome page',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.white,
+          ),
+        ),
       ),
       backgroundColor: const Color(0xFFF7F3FC),
       body: Padding(
@@ -36,36 +33,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                const SizedBox(height: 100),
-                ElevatedButton(
-                  onPressed: () => {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.black,
-                    foregroundColor: AppColors.white,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 40,
-                    ),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  child: const Text('Abrir conta'),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () => {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 15,
-                      horizontal: 40,
-                    ),
-                    textStyle: const TextStyle(fontSize: 16),
-                  ),
-                  child: const Text('Já tenho conta'),
-                ),
-              ],
+              children: <Widget>[const Text("pagina welcome")],
             ),
           ),
         ),
