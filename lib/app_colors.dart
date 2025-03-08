@@ -17,8 +17,10 @@ class AppColors {
         900: Color(0xFF0D470E),
       });
 
+  static const Color error = Color(0xFFFF5031);
+  static const Color grey = Color(0xFFDEE9EA);
+  static const Color greyPlaceholder = Color(0xFF8B8B8B);
   static const Color white = Colors.white;
   static const Color shadow = Colors.black12;
   static const Color black = Colors.black;
-  static const Color error = Colors.red;
 }
