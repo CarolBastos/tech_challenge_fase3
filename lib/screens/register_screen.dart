@@ -71,6 +71,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 controller: _passwordController,
               ),
               const SizedBox(height: 10),
+              if (_errorMessage.isNotEmpty)
+                Text(
+                  _errorMessage,
+                  style: const TextStyle(
+                    color: AppColors.error,
+                    fontSize: 14.0,
+                  ),
+                ),
+              const SizedBox(height: 10),
               TextButton(
                 onPressed: () {
                   Navigator.push(
@@ -127,6 +136,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   bool _validate() {
+    if (_nameController.text.isEmpty) {
+      _errorMessage = 'Informe o nome';
+      return false;
+    }
+
     if (_emailController.text.isEmpty) {
       _errorMessage = 'Informe o email';
       return false;
