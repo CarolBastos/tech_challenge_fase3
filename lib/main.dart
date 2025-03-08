@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ByteBank',
-      initialRoute: Routes.dashboard,
+      initialRoute: Routes.welcome,
       routes: {
         Routes.welcome: (context) => const WelcomeScreen(),
         Routes.dashboard: (context) => const DashboardScreen(),
