@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:tech_challenge_fase3/widgets/dashboard/menu/custom_app_bar.dart';
+import 'package:tech_challenge_fase3/widgets/dashboard/menu/custom_drawer.dart';
+import 'package:tech_challenge_fase3/widgets/dashboard/new_transaction/transaction_card.dart';
 
 import '../app_colors.dart';
+import '../widgets/dashboard/new_transaction/new_transaction.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -15,62 +19,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.teaGreen,
-      appBar: AppBar(
-        backgroundColor: AppColors.darkTeal,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 24.0),
-          child: IconButton(
-            icon: const Icon(Icons.menu, color: AppColors.error),
-            onPressed: () {
-              _scaffoldKey.currentState?.openDrawer();
-            },
-          ),
-        ),
-        actions: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(right: 24.0),
-            child: IconButton(
-              icon: const Icon(
-                Icons.account_circle_outlined,
-                color: AppColors.error,
-              ),
-              onPressed: () {},
-            ),
-          ),
-        ],
+      appBar: CustomAppBar(scaffoldKey: _scaffoldKey),
+      drawer: const CustomDrawer(),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(children: [TransactionCard(), SizedBox(height: 20)]),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            ListTile(
-              title: Text('Início'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Transferência'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Investimentos'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text('Outros Serviços'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Center(child: Text('Conteúdo do Dashboard')),
     );
   }
 }
