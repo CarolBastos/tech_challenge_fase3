@@ -19,6 +19,7 @@ class AppColors {
 
   static const Color error = Color(0xFFFF5031);
   static const Color darkTeal = Color(0xFF004D61);
+  static const Color teaGreen = Color(0xFFE4EDE3);
   static const Color grey = Color(0xFFDEE9EA);
   static const Color greyPlaceholder = Color(0xFF8B8B8B);
   static const Color white = Colors.white;

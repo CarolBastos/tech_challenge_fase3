@@ -14,6 +14,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
+      backgroundColor: AppColors.teaGreen,
       appBar: AppBar(
         backgroundColor: AppColors.darkTeal,
         leading: Padding(
