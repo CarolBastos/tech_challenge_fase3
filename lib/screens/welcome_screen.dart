@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tech_challenge_fase3/screens/login_screen.dart';
+import 'package:tech_challenge_fase3/screens/register_screen.dart';
 import '../app_colors.dart';
 import '../routes.dart';
 
@@ -10,59 +12,12 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  void _showTopModal(String title, String content) {
+  void _showAuthModal(BuildContext context, Widget loginScreen) {
     showDialog(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
-        return Align(
-          alignment: Alignment.topCenter,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 50.0),
-            child: Material(
-              color: Colors.transparent,
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.9,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(content),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: const Text("Fechar"),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
+        return SingleChildScrollView(child: loginScreen);
       },
     );
   }
@@ -85,8 +40,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 const SizedBox(height: 100),
                 ElevatedButton(
                   onPressed:
-                      () =>
-                          _showTopModal("Abrir conta", "Modal de Abrir conta"),
+                      () => _showAuthModal(
+                        context,
+                        RegisterScreen(
+                          title: "Abrir conta",
+                          asset: 'ilustracao_cadastro.png',
+                        ),
+                      ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.black,
                     foregroundColor: AppColors.white,
@@ -101,9 +61,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed:
-                      () => _showTopModal(
-                        "Já tenho conta",
-                        "Modal de Já tenho conta",
+                      () => _showAuthModal(
+                        context,
+                        RegisterScreen(
+                          title: "Login",
+                          asset: 'ilustracao_login.png',
+                        ),
                       ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
