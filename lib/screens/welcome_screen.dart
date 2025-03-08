@@ -39,14 +39,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               children: <Widget>[
                 const SizedBox(height: 100),
                 ElevatedButton(
-                  onPressed:
-                      () => _showAuthModal(
-                        context,
-                        RegisterScreen(
-                          title: "Abrir conta",
-                          asset: 'ilustracao_cadastro.png',
-                        ),
-                      ),
+                  onPressed: () => {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.black,
                     foregroundColor: AppColors.white,
@@ -60,14 +53,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed:
-                      () => _showAuthModal(
-                        context,
-                        RegisterScreen(
-                          title: "Login",
-                          asset: 'ilustracao_login.png',
-                        ),
-                      ),
+                  onPressed: () => {},
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
                     foregroundColor: Colors.white,
