@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tech_challenge_fase3/widgets/custom_button.dart';
 import '../app_colors.dart';
 import '../routes.dart';
 import '../widgets/custom_text_field.dart';
@@ -75,18 +76,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.error,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(144, 48),
-                  padding: const EdgeInsets.all(8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text('Entrar'),
+              CustomButton(
+                onPressed: () {
+                  _login();
+                },
+                width: 144,
+                text: 'Entrar',
+                backgroundColor: AppColors.error,
               ),
             ],
           ),
