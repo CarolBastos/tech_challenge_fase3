@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/widgets/custom_button.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class NewTransaction extends StatefulWidget {
   @override
@@ -11,22 +13,6 @@ class _NewTransactionState extends State<NewTransaction> {
   String? tipoTransacao;
   TextEditingController valorController = TextEditingController();
   List<String> tiposTransacao = ['Depósito', 'Saque', 'Transferência'];
-
-  void concluirTransacao() {
-    if (tipoTransacao != null && valorController.text.isNotEmpty) {
-      print('Transação concluída');
-      print('Tipo: $tipoTransacao');
-      print('Valor: ${valorController.text}');
-      setState(() {
-        tipoTransacao = null;
-        valorController.clear();
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Por favor, preencha todos os campos')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +76,9 @@ class _NewTransactionState extends State<NewTransaction> {
         SizedBox(height: 20),
         Center(
           child: CustomButton(
-            onPressed: concluirTransacao,
+            onPressed: () {
+              concluirTransacao();
+            },
             text: 'Concluir a transação',
             backgroundColor: AppColors.darkTeal,
             textColor: Colors.white,
@@ -98,5 +86,67 @@ class _NewTransactionState extends State<NewTransaction> {
         ),
       ],
     );
+  }
+
+  Future<void> concluirTransacao() async {
+    User? usuario = FirebaseAuth.instance.currentUser;
+
+    if (usuario == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Usuário não autenticado.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (tipoTransacao == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Por favor, selecione o tipo de transação.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (valorController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Por favor, insira o valor da transação.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    try {
+      await FirebaseFirestore.instance.collection('transacoes').add({
+        'user_id': usuario.uid,
+        'tipo': tipoTransacao,
+        'valor': valorController.text,
+        'data': FieldValue.serverTimestamp(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Transação concluída com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      setState(() {
+        tipoTransacao = null;
+        valorController.clear();
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erro ao cadastrar transação: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }
