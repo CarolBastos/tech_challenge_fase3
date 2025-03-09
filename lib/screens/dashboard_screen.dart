@@ -15,6 +15,22 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  String displayName = "Usuário";
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
+  void loadUser() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null && user.displayName != null) {
+      setState(() {
+        displayName = user.displayName!;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +44,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              Text(
+                "Olá, $displayName! :)",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
               TransactionCard(),
               SizedBox(height: 24),
               TransactionList(),

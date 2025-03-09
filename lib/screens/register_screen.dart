@@ -123,10 +123,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return;
       }
 
-      await _auth.createUserWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: _emailController.text,
+            password: _passwordController.text,
+          );
+
+      User? user = userCredential.user;
+      if (user != null) {
+        await user.updateProfile(displayName: _nameController.text);
+        await user.reload();
+      }
+
       Navigator.pushReplacementNamed(context, Routes.login);
     } catch (e) {
       setState(() {
