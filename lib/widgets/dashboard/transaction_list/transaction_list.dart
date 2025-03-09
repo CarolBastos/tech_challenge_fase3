@@ -37,7 +37,7 @@ class TransactionList extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(24.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -71,10 +71,7 @@ class TransactionList extends StatelessWidget {
                                 0.0;
 
                     return ListTile(
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 8,
-                        horizontal: 10,
-                      ),
+                      contentPadding: EdgeInsets.symmetric(vertical: 0),
                       title: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
