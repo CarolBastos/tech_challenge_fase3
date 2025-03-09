@@ -122,6 +122,7 @@ class _NewTransactionState extends State<NewTransaction> {
     }
 
     try {
+      FocusScope.of(context).unfocus();
       await FirebaseFirestore.instance.collection('transacoes').add({
         'user_id': usuario.uid,
         'tipo': tipoTransacao,
