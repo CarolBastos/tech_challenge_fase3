@@ -1,29 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:tech_challenge_fase3/app_colors.dart';
 
 class CustomButton extends StatelessWidget {
   final VoidCallback onPressed;
   final String text;
   final Color backgroundColor;
-  final Color textColor;
+  final Color? textColor;
+  final double? width;
+  final double? height;
 
   const CustomButton({
     super.key,
     required this.onPressed,
     required this.text,
     required this.backgroundColor,
-    required this.textColor,
+    this.textColor,
+    this.width,
+    this.height,
   });
 
   @override
   Widget build(BuildContext context) {
     return IntrinsicWidth(
       child: SizedBox(
-        height: 48,
+        height: height ?? 48,
+        width: width ?? double.infinity,
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
+            minimumSize: Size(width ?? double.infinity, height ?? 48),
             backgroundColor: backgroundColor,
-            foregroundColor: textColor,
+            foregroundColor: textColor ?? AppColors.white,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),

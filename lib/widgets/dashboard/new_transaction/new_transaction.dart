@@ -81,7 +81,6 @@ class _NewTransactionState extends State<NewTransaction> {
             },
             text: 'Concluir a transação',
             backgroundColor: AppColors.darkTeal,
-            textColor: Colors.white,
           ),
         ),
       ],
