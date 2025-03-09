@@ -13,6 +13,7 @@ class _NewTransactionState extends State<NewTransaction> {
   String? tipoTransacao;
   TextEditingController valorController = TextEditingController();
   List<String> tiposTransacao = ['Depósito', 'Saque', 'Transferência'];
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -77,10 +78,11 @@ class _NewTransactionState extends State<NewTransaction> {
         Center(
           child: CustomButton(
             onPressed: () {
-              concluirTransacao();
+              isLoading ? null : concluirTransacao();
             },
             text: 'Concluir a transação',
             backgroundColor: AppColors.darkTeal,
+            isLoading: isLoading,
           ),
         ),
       ],
@@ -135,6 +137,10 @@ class _NewTransactionState extends State<NewTransaction> {
     try {
       FocusScope.of(context).unfocus();
 
+      setState(() {
+        isLoading = true;
+      });
+
       DocumentSnapshot userDoc =
           await FirebaseFirestore.instance
               .collection('usuarios')
@@ -180,8 +186,13 @@ class _NewTransactionState extends State<NewTransaction> {
       setState(() {
         tipoTransacao = null;
         valorController.clear();
+        isLoading = false;
       });
     } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Erro ao cadastrar transação: $e'),
