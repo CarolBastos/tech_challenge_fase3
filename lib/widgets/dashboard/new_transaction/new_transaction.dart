@@ -121,14 +121,55 @@ class _NewTransactionState extends State<NewTransaction> {
       return;
     }
 
+    double valor =
+        double.tryParse(valorController.text.replaceAll(',', '.')) ?? 0;
+    if (valor <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('O valor da transação deve ser maior que zero.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     try {
       FocusScope.of(context).unfocus();
+
+      DocumentSnapshot userDoc =
+          await FirebaseFirestore.instance
+              .collection('usuarios')
+              .doc(usuario.uid)
+              .get();
+
+      double balanceCurrent = (userDoc['saldo'] ?? 0).toDouble();
+      double newBalance = calculateNewBalance(
+        balanceCurrent,
+        valor,
+        tipoTransacao!,
+      );
+
+      if (newBalance < 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Saldo insuficiente para esta transação.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
       await FirebaseFirestore.instance.collection('transacoes').add({
         'user_id': usuario.uid,
         'tipo': tipoTransacao,
         'valor': valorController.text,
         'data': FieldValue.serverTimestamp(),
       });
+
+      await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(usuario.uid)
+          .update({'saldo': newBalance});
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -149,5 +190,19 @@ class _NewTransactionState extends State<NewTransaction> {
         ),
       );
     }
+  }
+
+  bool isNegativeTransaction(String type) {
+    return type == 'Saque' || type == 'Transferência';
+  }
+
+  double calculateNewBalance(
+    double currentBalance,
+    double amount,
+    String type,
+  ) {
+    return isNegativeTransaction(type)
+        ? currentBalance - amount
+        : currentBalance + amount;
   }
 }

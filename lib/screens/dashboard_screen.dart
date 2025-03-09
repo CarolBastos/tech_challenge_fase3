@@ -7,6 +7,7 @@ import 'package:tech_challenge_fase3/widgets/dashboard/transaction_list/transact
 import '../app_colors.dart';
 import '../widgets/dashboard/new_transaction/new_transaction.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -16,6 +17,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String displayName = "Usuário";
+  double balance = 0.0;
 
   @override
   void initState() {
@@ -23,11 +25,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
     loadUser();
   }
 
-  void loadUser() {
+  void loadUser() async {
     User? user = FirebaseAuth.instance.currentUser;
-    if (user != null && user.displayName != null) {
+    if (user != null) {
+      await createUserFirestore(user);
+      await getUserBalance(user);
       setState(() {
-        displayName = user.displayName!;
+        displayName = user.displayName ?? "Usuário";
+      });
+    }
+  }
+
+  Future<void> createUserFirestore(User user) async {
+    DocumentReference userRef = FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(user.uid);
+
+    DocumentSnapshot userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      await userRef.set({
+        'nome': user.displayName ?? 'Usuário',
+        'email': user.email,
+        'saldo': 0.0,
+        'criado_em': FieldValue.serverTimestamp(),
+      });
+    }
+  }
+
+  Future<void> getUserBalance(User user) async {
+    DocumentReference userRef = FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(user.uid);
+
+    DocumentSnapshot userDoc = await userRef.get();
+
+    if (userDoc.exists) {
+      setState(() {
+        balance = userDoc['saldo'] ?? 0.0;
       });
     }
   }
@@ -46,6 +81,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 "Olá, $displayName! :)",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "Saldo: R\$ $balance",
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               TransactionCard(),
