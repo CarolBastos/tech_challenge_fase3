@@ -17,6 +17,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String displayName = "Usuário";
+  double balance = 0.0;
 
   @override
   void initState() {
@@ -28,6 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       await createUserFirestore(user);
+      await getUserBalance(user);
       setState(() {
         displayName = user.displayName ?? "Usuário";
       });
@@ -51,6 +53,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> getUserBalance(User user) async {
+    DocumentReference userRef = FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(user.uid);
+
+    DocumentSnapshot userDoc = await userRef.get();
+
+    if (userDoc.exists) {
+      setState(() {
+        balance = userDoc['saldo'] ?? 0.0;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,6 +81,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 "Olá, $displayName! :)",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "Saldo: R\$ $balance",
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               TransactionCard(),
