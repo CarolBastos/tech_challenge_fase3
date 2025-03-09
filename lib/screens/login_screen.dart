@@ -17,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -78,11 +79,12 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 8),
               CustomButton(
                 onPressed: () {
-                  _login();
+                  isLoading ? null : _login();
                 },
                 width: 144,
                 text: 'Entrar',
                 backgroundColor: AppColors.error,
+                isLoading: isLoading,
               ),
             ],
           ),
@@ -93,9 +95,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() async {
     try {
+      setState(() {
+        isLoading = true;
+        _errorMessage = '';
+      });
+
       bool isValid = _validate();
       if (!isValid) {
-        setState(() {});
+        setState(() {
+          isLoading = false;
+        });
         return;
       }
 
@@ -107,6 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
+        isLoading = false;
       });
     }
   }

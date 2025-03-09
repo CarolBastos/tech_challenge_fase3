@@ -20,6 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   String _errorMessage = '';
+  bool isLoading = false;
 
   @override
   void dispose() {
@@ -98,11 +99,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 8),
               CustomButton(
                 onPressed: () {
-                  _register();
+                  isLoading ? null : _register();
                 },
                 width: 144,
                 text: 'Cadastrar',
                 backgroundColor: AppColors.error,
+                isLoading: isLoading,
               ),
             ],
           ),
@@ -113,9 +115,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   void _register() async {
     try {
+      setState(() {
+        isLoading = true;
+        _errorMessage = '';
+      });
+
       bool isValid = _validate();
       if (!isValid) {
-        setState(() {});
+        setState(() {
+          isLoading = false;
+        });
         return;
       }
 
@@ -135,6 +144,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
+        isLoading = false;
       });
     }
   }
