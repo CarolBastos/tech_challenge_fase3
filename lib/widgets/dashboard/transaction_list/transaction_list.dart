@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:intl/intl.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 
+import 'convertMonthToPortuguese.dart';
+
 class TransactionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -60,6 +62,7 @@ class TransactionList extends StatelessWidget {
                       'MM/dd/yyyy',
                     ).format(data);
                     var month = DateFormat('MMMM').format(data);
+                    var monthInPortuguese = convertMonthToPortuguese(month);
 
                     double valor =
                         transacao['valor'] is double
@@ -79,7 +82,7 @@ class TransactionList extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '$month',
+                                '$monthInPortuguese',
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
