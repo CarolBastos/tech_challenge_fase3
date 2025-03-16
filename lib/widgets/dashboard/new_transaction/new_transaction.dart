@@ -3,6 +3,8 @@ import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/widgets/custom_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:tech_challenge_fase3/widgets/user/user.dart';
 
 class NewTransaction extends StatefulWidget {
   @override
@@ -175,6 +177,9 @@ class _NewTransactionState extends State<NewTransaction> {
           .collection('usuarios')
           .doc(usuario.uid)
           .update({'saldo': newBalance});
+
+      final userModel = Provider.of<UserModel>(context, listen: false);
+      userModel.updateUser(userModel.displayName, newBalance);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

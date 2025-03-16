@@ -11,13 +11,9 @@ import 'screens/welcome_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
-  
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => UserModel(),
-      child: MyApp(),
-    ),
+    ChangeNotifierProvider(create: (_) => UserModel(), child: const MyApp()),
   );
 }
 

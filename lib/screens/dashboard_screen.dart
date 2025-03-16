@@ -20,7 +20,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    loadUser();
+    Future.microtask(() => loadUser());
   }
 
   void loadUser() async {
@@ -29,9 +29,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       await createUserFirestore(user);
       await getUserBalance(user);
 
-      // Atualiza os dados no Provider
-      final userModel = Provider.of<UserModel>(context, listen: false);
-      userModel.updateUser(user.displayName ?? "Usuário", userModel.balance);
+      if (mounted) {
+        setState(() {
+          final userModel = Provider.of<UserModel>(context, listen: false);
+          userModel.updateUser(
+            user.displayName ?? "Usuário",
+            userModel.balance,
+          );
+        });
+      }
     }
   }
 
