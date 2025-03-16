@@ -41,8 +41,6 @@ class _FilteredTransactionScreenState extends State<FilteredTransactionScreen> {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _selectedValue = double.tryParse(_valueController.text);
-        _selectedType =
-            _typeController.text.isEmpty ? null : _typeController.text;
       });
     }
   }
@@ -160,15 +158,7 @@ class _FilteredTransactionScreenState extends State<FilteredTransactionScreen> {
                                 );
                               }).toList(),
                           onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedType = newValue;
-                            });
-                          },
-                          validator: (value) {
-                            if (value == null) {
-                              return "Selecione um tipo";
-                            }
-                            return null;
+                            _selectedType = newValue;
                           },
                         ),
                         SizedBox(height: 16),

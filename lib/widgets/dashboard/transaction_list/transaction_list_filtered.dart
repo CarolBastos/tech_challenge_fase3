@@ -99,7 +99,7 @@ class TransactionListFiltered extends StatelessWidget {
 
                     DateTime data = dataTransacao.toDate();
                     String dataFormatada = DateFormat(
-                      'MM/dd/yyyy',
+                      'dd/MM/yyyy',
                     ).format(data);
                     var month = DateFormat('MMMM').format(data);
                     var monthInPortuguese = convertMonthToPortuguese(month);

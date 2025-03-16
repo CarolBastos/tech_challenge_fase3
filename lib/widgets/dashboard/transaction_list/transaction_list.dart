@@ -1,57 +1,81 @@
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
+import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:intl/intl.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
-
 import 'convertMonthToPortuguese.dart';
 
-class TransactionList extends StatelessWidget {
+class TransactionList extends StatefulWidget {
+  @override
+  _TransactionListState createState() => _TransactionListState();
+}
+
+class _TransactionListState extends State<TransactionList> {
+  static const _pageSize = 10;
+  final PagingController<int, DocumentSnapshot> _pagingController =
+      PagingController(firstPageKey: 0);
+
+  @override
+  void initState() {
+    super.initState();
+    _pagingController.addPageRequestListener((pageKey) {
+      _fetchNextPage(pageKey);
+    });
+  }
+
+  Future<void> _fetchNextPage(int pageKey) async {
+    try {
+      final Query query = FirebaseFirestore.instance
+          .collection('transacoes')
+          .where('user_id', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+          .orderBy('data', descending: true)
+          .limit(_pageSize);
+
+      QuerySnapshot snapshot;
+      if (pageKey == 0) {
+        snapshot = await query.get();
+      } else {
+        final lastDoc = _pagingController.itemList?.last;
+        snapshot = await query.startAfterDocument(lastDoc!).get();
+      }
+
+      final isLastPage = snapshot.docs.length < _pageSize;
+      if (isLastPage) {
+        _pagingController.appendLastPage(snapshot.docs);
+      } else {
+        _pagingController.appendPage(snapshot.docs, pageKey + 1);
+      }
+    } catch (error) {
+      _pagingController.error = error;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream:
-          FirebaseFirestore.instance
-              .collection('transacoes')
-              .where(
-                'user_id',
-                isEqualTo: FirebaseAuth.instance.currentUser?.uid,
-              )
-              .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(child: Text('Nenhuma transação encontrada'));
-        }
+    var format = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
-        var transacoes = snapshot.data!.docs;
-        var format = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
-
-        return Card(
-          elevation: 5,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Extrato',
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: transacoes.length,
-                  itemBuilder: (context, index) {
-                    var transacao = transacoes[index];
-
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Extrato',
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16),
+            Container(
+              height:
+                  MediaQuery.of(context).size.height *
+                  0.5, // Definindo altura fixa
+              child: PagedListView<int, DocumentSnapshot>(
+                pagingController: _pagingController,
+                builderDelegate: PagedChildBuilderDelegate<DocumentSnapshot>(
+                  itemBuilder: (context, transacao, index) {
                     var dataTransacao = transacao['data'];
                     if (dataTransacao == null || dataTransacao is! Timestamp) {
                       return ListTile(title: Text('Erro: Data inválida'));
@@ -59,7 +83,7 @@ class TransactionList extends StatelessWidget {
 
                     DateTime data = dataTransacao.toDate();
                     String dataFormatada = DateFormat(
-                      'MM/dd/yyyy',
+                      'dd/MM/yyyy',
                     ).format(data);
                     var month = DateFormat('MMMM').format(data);
                     var monthInPortuguese = convertMonthToPortuguese(month);
@@ -102,7 +126,6 @@ class TransactionList extends StatelessWidget {
                               ),
                             ],
                           ),
-
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
@@ -120,12 +143,28 @@ class TransactionList extends StatelessWidget {
                       ),
                     );
                   },
+                  firstPageProgressIndicatorBuilder:
+                      (context) => Center(child: CircularProgressIndicator()),
+                  newPageProgressIndicatorBuilder:
+                      (context) => Center(child: CircularProgressIndicator()),
+                  firstPageErrorIndicatorBuilder:
+                      (context) =>
+                          Center(child: Text('Erro ao carregar transações')),
+                  noMoreItemsIndicatorBuilder:
+                      (context) =>
+                          Center(child: Text('Não há mais transações')),
                 ),
-              ],
+              ),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pagingController.dispose();
+    super.dispose();
   }
 }
