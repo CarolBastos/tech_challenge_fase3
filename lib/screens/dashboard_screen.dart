@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tech_challenge_fase3/widgets/dashboard/menu/custom_app_bar.dart';
 import 'package:tech_challenge_fase3/widgets/dashboard/menu/custom_drawer.dart';
 import 'package:tech_challenge_fase3/widgets/dashboard/new_transaction/transaction_card.dart';
 import 'package:tech_challenge_fase3/widgets/dashboard/transaction_list/transaction_list.dart';
-
-import '../app_colors.dart';
-import '../widgets/dashboard/new_transaction/new_transaction.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:tech_challenge_fase3/widgets/user/user.dart';
+import '../app_colors.dart';
 
 class DashboardScreen extends StatefulWidget {
   @override
@@ -16,8 +16,6 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String displayName = "Usuário";
-  double balance = 0.0;
 
   @override
   void initState() {
@@ -30,9 +28,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (user != null) {
       await createUserFirestore(user);
       await getUserBalance(user);
-      setState(() {
-        displayName = user.displayName ?? "Usuário";
-      });
+
+      // Atualiza os dados no Provider
+      final userModel = Provider.of<UserModel>(context, listen: false);
+      userModel.updateUser(user.displayName ?? "Usuário", userModel.balance);
     }
   }
 
@@ -61,14 +60,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
     DocumentSnapshot userDoc = await userRef.get();
 
     if (userDoc.exists) {
-      setState(() {
-        balance = userDoc['saldo'] ?? 0.0;
-      });
+      final userModel = Provider.of<UserModel>(context, listen: false);
+      userModel.updateUser(userModel.displayName, userDoc['saldo'] ?? 0.0);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final userModel = Provider.of<UserModel>(context);
+
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: AppColors.teaGreen,
@@ -80,11 +80,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             children: [
               Text(
-                "Olá, $displayName! :)",
+                "Olá, ${userModel.displayName}! :)",
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               Text(
-                "Saldo: R\$ $balance",
+                "Saldo: R\$ ${userModel.balance}",
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               TransactionCard(),
