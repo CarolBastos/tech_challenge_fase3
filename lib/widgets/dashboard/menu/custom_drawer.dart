@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tech_challenge_fase3/screens/dashboard_screen.dart';
+import 'package:tech_challenge_fase3/screens/transactions_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -9,16 +11,27 @@ class CustomDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
+          SizedBox(height: 40),
           ListTile(
             title: Text('Início'),
             onTap: () {
               Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DashboardScreen()),
+              );
             },
           ),
           ListTile(
-            title: Text('Transferência'),
+            title: Text('Transações'),
             onTap: () {
               Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FilteredTransactionScreen(),
+                ),
+              );
             },
           ),
           ListTile(

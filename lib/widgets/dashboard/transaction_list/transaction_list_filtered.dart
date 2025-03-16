@@ -1,81 +1,97 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'convertMonthToPortuguese.dart';
 
-class TransactionList extends StatefulWidget {
-  @override
-  _TransactionListState createState() => _TransactionListState();
-}
+class TransactionListFiltered extends StatelessWidget {
+  final DateTime? data;
+  final double? valor;
+  final String? tipoTransferencia;
 
-class _TransactionListState extends State<TransactionList> {
-  static const _pageSize = 10;
-  final PagingController<int, DocumentSnapshot> _pagingController =
-      PagingController(firstPageKey: 0);
-
-  @override
-  void initState() {
-    super.initState();
-    _pagingController.addPageRequestListener((pageKey) {
-      _fetchNextPage(pageKey);
-    });
-  }
-
-  Future<void> _fetchNextPage(int pageKey) async {
-    try {
-      final Query query = FirebaseFirestore.instance
-          .collection('transacoes')
-          .where('user_id', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
-          .orderBy('data', descending: true)
-          .limit(_pageSize);
-
-      QuerySnapshot snapshot;
-      if (pageKey == 0) {
-        snapshot = await query.get();
-      } else {
-        final lastDoc = _pagingController.itemList?.last;
-        snapshot = await query.startAfterDocument(lastDoc!).get();
-      }
-
-      final isLastPage = snapshot.docs.length < _pageSize;
-      if (isLastPage) {
-        _pagingController.appendLastPage(snapshot.docs);
-      } else {
-        _pagingController.appendPage(snapshot.docs, pageKey + 1);
-      }
-    } catch (error) {
-      _pagingController.error = error;
-    }
-  }
+  TransactionListFiltered({this.data, this.valor, this.tipoTransferencia});
 
   @override
   Widget build(BuildContext context) {
-    var format = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    return StreamBuilder<QuerySnapshot>(
+      stream:
+          FirebaseFirestore.instance
+              .collection('transacoes')
+              .where(
+                'user_id',
+                isEqualTo: FirebaseAuth.instance.currentUser?.uid,
+              )
+              .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Center(child: Text('Nenhuma transação encontrada'));
+        }
 
-    return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Extrato',
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+        var transacoes = snapshot.data!.docs;
+        var format = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+
+        // Filtra as transações com base nos parâmetros fornecidos
+        var transacoesFiltradas =
+            transacoes.where((transacao) {
+              var dataTransacao = transacao['data'];
+              if (dataTransacao == null || dataTransacao is! Timestamp) {
+                return false;
+              }
+
+              DateTime dataTransacaoDate = dataTransacao.toDate();
+              double transacaoValor =
+                  transacao['valor'] is double
+                      ? transacao['valor']
+                      : double.tryParse(transacao['valor'].toString()) ?? 0.0;
+              String transacaoTipo = transacao['tipo'];
+
+              bool matchesData =
+                  data == null ||
+                  (dataTransacaoDate.year == data!.year &&
+                      dataTransacaoDate.month == data!.month &&
+                      dataTransacaoDate.day == data!.day);
+
+              bool matchesValor = valor == null || transacaoValor == valor;
+              bool matchesTipo =
+                  tipoTransferencia == null ||
+                  transacaoTipo == tipoTransferencia;
+
+              return matchesData && matchesValor && matchesTipo;
+            }).toList();
+
+        if (transacoesFiltradas.isEmpty) {
+          return Center(
+            child: Text(
+              'Nenhuma transação encontrada com os filtros aplicados',
             ),
-            SizedBox(height: 16),
-            Container(
-              height:
-                  MediaQuery.of(context).size.height *
-                  0.5, // Definindo altura fixa
-              child: PagedListView<int, DocumentSnapshot>(
-                pagingController: _pagingController,
-                builderDelegate: PagedChildBuilderDelegate<DocumentSnapshot>(
-                  itemBuilder: (context, transacao, index) {
+          );
+        }
+
+        return Card(
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Extrato',
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 16),
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: transacoesFiltradas.length,
+                  itemBuilder: (context, index) {
+                    var transacao = transacoesFiltradas[index];
+
                     var dataTransacao = transacao['data'];
                     if (dataTransacao == null || dataTransacao is! Timestamp) {
                       return ListTile(title: Text('Erro: Data inválida'));
@@ -143,28 +159,12 @@ class _TransactionListState extends State<TransactionList> {
                       ),
                     );
                   },
-                  firstPageProgressIndicatorBuilder:
-                      (context) => Center(child: CircularProgressIndicator()),
-                  newPageProgressIndicatorBuilder:
-                      (context) => Center(child: CircularProgressIndicator()),
-                  firstPageErrorIndicatorBuilder:
-                      (context) =>
-                          Center(child: Text('Erro ao carregar transações')),
-                  noMoreItemsIndicatorBuilder:
-                      (context) =>
-                          Center(child: Text('Não há mais transações')),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
-  }
-
-  @override
-  void dispose() {
-    _pagingController.dispose();
-    super.dispose();
   }
 }
