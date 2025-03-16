@@ -4,7 +4,7 @@ import 'package:tech_challenge_fase3/widgets/custom_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
-import 'package:tech_challenge_fase3/widgets/user/user.dart';
+import 'package:tech_challenge_fase3/models/user_model.dart';
 
 class NewTransaction extends StatefulWidget {
   @override

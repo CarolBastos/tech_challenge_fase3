@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class UserModel with ChangeNotifier {
+  String? uid;
   String _displayName = "Usuário";
   double _balance = 0.0;
 
