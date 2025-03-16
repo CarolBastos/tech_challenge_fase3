@@ -3,13 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tech_challenge_fase3/models/transaction_model.dart';
 
 class TransactionProvider with ChangeNotifier {
-  List<Map<String, dynamic>> _transactions = [];
+  List<TransactionModel> _transactions = [];
   bool _isLoading = true;
   StreamSubscription? _transactionSubscription;
 
-  List<Map<String, dynamic>> get transactions => _transactions;
+  List<TransactionModel> get transactions => _transactions;
   bool get isLoading => _isLoading;
 
   TransactionProvider() {
@@ -47,13 +48,13 @@ class TransactionProvider with ChangeNotifier {
             print("Foram encontradas ${querySnapshot.docs.length} transações");
 
             _transactions =
-                querySnapshot.docs.map((doc) {
-                  return {
-                    'data': (doc['data'] as Timestamp).toDate(),
-                    'tipo': doc['tipo'],
-                    'valor': double.tryParse(doc['valor'].toString()) ?? 0.0,
-                  };
-                }).toList();
+                querySnapshot.docs
+                    .map(
+                      (doc) => TransactionModel.fromMap(
+                        doc.data() as Map<String, dynamic>,
+                      ),
+                    )
+                    .toList();
 
             _isLoading = false;
             notifyListeners();
