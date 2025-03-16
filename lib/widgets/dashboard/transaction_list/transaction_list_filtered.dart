@@ -15,13 +15,14 @@ class TransactionListFiltered extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('transacoes')
-          .where(
-            'user_id',
-            isEqualTo: FirebaseAuth.instance.currentUser?.uid,
-          )
-          .snapshots(),
+      stream:
+          FirebaseFirestore.instance
+              .collection('transacoes')
+              .where(
+                'user_id',
+                isEqualTo: FirebaseAuth.instance.currentUser?.uid,
+              )
+              .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -34,32 +35,40 @@ class TransactionListFiltered extends StatelessWidget {
         var format = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
         // Filtra as transações com base nos parâmetros fornecidos
-        var transacoesFiltradas = transacoes.where((transacao) {
-          var dataTransacao = transacao['data'];
-          if (dataTransacao == null || dataTransacao is! Timestamp) {
-            return false;
-          }
+        var transacoesFiltradas =
+            transacoes.where((transacao) {
+              var dataTransacao = transacao['data'];
+              if (dataTransacao == null || dataTransacao is! Timestamp) {
+                return false;
+              }
 
-          DateTime dataTransacaoDate = dataTransacao.toDate();
-          double transacaoValor = transacao['valor'] is double
-              ? transacao['valor']
-              : double.tryParse(transacao['valor'].toString()) ?? 0.0;
-          String transacaoTipo = transacao['tipo'];
+              DateTime dataTransacaoDate = dataTransacao.toDate();
+              double transacaoValor =
+                  transacao['valor'] is double
+                      ? transacao['valor']
+                      : double.tryParse(transacao['valor'].toString()) ?? 0.0;
+              String transacaoTipo = transacao['tipo'];
 
-          bool matchesData = data == null || 
-              (dataTransacaoDate.year == data!.year &&
-               dataTransacaoDate.month == data!.month &&
-               dataTransacaoDate.day == data!.day);
+              bool matchesData =
+                  data == null ||
+                  (dataTransacaoDate.year == data!.year &&
+                      dataTransacaoDate.month == data!.month &&
+                      dataTransacaoDate.day == data!.day);
 
-          bool matchesValor = valor == null || transacaoValor == valor;
-          bool matchesTipo = tipoTransferencia == null || 
-              transacaoTipo == tipoTransferencia;
+              bool matchesValor = valor == null || transacaoValor == valor;
+              bool matchesTipo =
+                  tipoTransferencia == null ||
+                  transacaoTipo == tipoTransferencia;
 
-          return matchesData && matchesValor && matchesTipo;
-        }).toList();
+              return matchesData && matchesValor && matchesTipo;
+            }).toList();
 
         if (transacoesFiltradas.isEmpty) {
-          return Center(child: Text('Nenhuma transação encontrada com os filtros aplicados'));
+          return Center(
+            child: Text(
+              'Nenhuma transação encontrada com os filtros aplicados',
+            ),
+          );
         }
 
         return Card(
@@ -89,13 +98,17 @@ class TransactionListFiltered extends StatelessWidget {
                     }
 
                     DateTime data = dataTransacao.toDate();
-                    String dataFormatada = DateFormat('MM/dd/yyyy').format(data);
+                    String dataFormatada = DateFormat(
+                      'MM/dd/yyyy',
+                    ).format(data);
                     var month = DateFormat('MMMM').format(data);
                     var monthInPortuguese = convertMonthToPortuguese(month);
 
-                    double valor = transacao['valor'] is double
-                        ? transacao['valor']
-                        : double.tryParse(transacao['valor'].toString()) ?? 0.0;
+                    double valor =
+                        transacao['valor'] is double
+                            ? transacao['valor']
+                            : double.tryParse(transacao['valor'].toString()) ??
+                                0.0;
 
                     return ListTile(
                       contentPadding: EdgeInsets.symmetric(vertical: 0),
