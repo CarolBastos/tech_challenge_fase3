@@ -1,9 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tech_challenge_fase3/provider/transaction_provider.dart';
 import 'package:tech_challenge_fase3/screens/login_screen.dart';
 import 'package:tech_challenge_fase3/screens/register_screen.dart';
-import 'package:tech_challenge_fase3/widgets/user/user.dart';
+import 'package:tech_challenge_fase3/models/user_model.dart';
 import 'routes.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/welcome_screen.dart';
@@ -11,12 +12,14 @@ import 'screens/welcome_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
-  
+
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => UserModel(),
-      child: MyApp(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => UserModel()),
+        ChangeNotifierProvider(create: (context) => TransactionProvider()),
+      ],
+      child: const MyApp(),
     ),
   );
 }

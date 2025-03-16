@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/widgets/dashboard/transaction_list/transaction_list_filtered.dart';
-import 'package:tech_challenge_fase3/widgets/user/user.dart';
+import 'package:tech_challenge_fase3/models/user_model.dart';
 import '../widgets/dashboard/menu/custom_app_bar.dart';
 import '../widgets/dashboard/menu/custom_drawer.dart';
 

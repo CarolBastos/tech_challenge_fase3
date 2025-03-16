@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tech_challenge_fase3/provider/transaction_provider.dart';
 import 'package:tech_challenge_fase3/widgets/dashboard/menu/custom_app_bar.dart';
 import 'package:tech_challenge_fase3/widgets/dashboard/menu/custom_drawer.dart';
 import 'package:tech_challenge_fase3/widgets/dashboard/new_transaction/transaction_card.dart';
 import 'package:tech_challenge_fase3/widgets/dashboard/transaction_list/transaction_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tech_challenge_fase3/widgets/user/user.dart';
+import 'package:tech_challenge_fase3/models/user_model.dart';
 import '../app_colors.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -20,7 +21,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    loadUser();
+    Future.microtask(() => loadUser());
   }
 
   void loadUser() async {
@@ -29,9 +30,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       await createUserFirestore(user);
       await getUserBalance(user);
 
-      // Atualiza os dados no Provider
-      final userModel = Provider.of<UserModel>(context, listen: false);
-      userModel.updateUser(user.displayName ?? "Usuário", userModel.balance);
+      if (mounted) {
+        setState(() {
+          final userModel = Provider.of<UserModel>(context, listen: false);
+          userModel.updateUser(
+            user.displayName ?? "Usuário",
+            userModel.balance,
+          );
+        });
+      }
     }
   }
 
