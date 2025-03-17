@@ -69,127 +69,138 @@ class _FilteredTransactionScreenState extends State<FilteredTransactionScreen> {
       drawer: const CustomDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Text(
-                "Olá, $displayName! :)",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                "Saldo: R\$ $balance",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 24),
-              Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+        child: CustomScrollView(
+          // Substitua o ListView por CustomScrollView
+          slivers: [
+            SliverList(
+              delegate: SliverChildListDelegate([
+                Text(
+                  "Olá, $displayName! :)",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        Text(
-                          "Filtrar Transações",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                Text(
+                  "Saldo: R\$ $balance",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 24),
+                Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          Text(
+                            "Filtrar Transações",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 16),
-                        // Campo de Data
-                        InkWell(
-                          onTap: () => _selectDate(context),
-                          child: InputDecorator(
+                          SizedBox(height: 16),
+                          // Campo de Data
+                          InkWell(
+                            onTap: () => _selectDate(context),
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                labelText: "Data",
+                                border: OutlineInputBorder(),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    _selectedDate == null
+                                        ? "Selecione uma data"
+                                        : DateFormat(
+                                          'dd/MM/yyyy',
+                                        ).format(_selectedDate!),
+                                  ),
+                                  Icon(Icons.calendar_today),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 16),
+                          // Campo de Valor
+                          TextFormField(
+                            controller: _valueController,
                             decoration: InputDecoration(
-                              labelText: "Data",
+                              labelText: "Valor",
                               border: OutlineInputBorder(),
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  _selectedDate == null
-                                      ? "Selecione uma data"
-                                      : DateFormat(
-                                        'dd/MM/yyyy',
-                                      ).format(_selectedDate!),
-                                ),
-                                Icon(Icons.calendar_today),
-                              ],
+                            keyboardType: TextInputType.numberWithOptions(
+                              decimal: true,
                             ),
+                            validator: (value) {
+                              if (value!.isNotEmpty &&
+                                  double.tryParse(value) == null) {
+                                return "Insira um valor válido";
+                              }
+                              return null;
+                            },
                           ),
-                        ),
-                        SizedBox(height: 16),
-                        // Campo de Valor
-                        TextFormField(
-                          controller: _valueController,
-                          decoration: InputDecoration(
-                            labelText: "Valor",
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          validator: (value) {
-                            if (value!.isNotEmpty &&
-                                double.tryParse(value) == null) {
-                              return "Insira um valor válido";
-                            }
-                            return null;
-                          },
-                        ),
-                        SizedBox(height: 16),
-                        // Campo de Tipo de Transferência
-                        DropdownButtonFormField<String>(
-                          value: _selectedType,
-                          decoration: InputDecoration(
-                            labelText: "Tipo de Transferência",
-                            border: OutlineInputBorder(),
-                          ),
-                          items:
-                              tiposTransacao.map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                          onChanged: (String? newValue) {
-                            _selectedType = newValue;
-                          },
-                        ),
-                        SizedBox(height: 16),
-                        // Botões de Aplicar e Limpar Filtros
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            ElevatedButton(
-                              onPressed: _applyFilters,
-                              child: Text("Aplicar Filtros"),
+                          SizedBox(height: 16),
+                          // Campo de Tipo de Transferência
+                          DropdownButtonFormField<String>(
+                            value: _selectedType,
+                            decoration: InputDecoration(
+                              labelText: "Tipo de Transferência",
+                              border: OutlineInputBorder(),
                             ),
-                            TextButton(
-                              onPressed: _clearFilters,
-                              child: Text("Limpar Filtros"),
-                            ),
-                          ],
-                        ),
-                      ],
+                            items:
+                                tiposTransacao.map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                            onChanged: (String? newValue) {
+                              _selectedType = newValue;
+                            },
+                          ),
+                          SizedBox(height: 16),
+                          // Botões de Aplicar e Limpar Filtros
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ElevatedButton(
+                                onPressed: _applyFilters,
+                                child: Text("Aplicar Filtros"),
+                              ),
+                              TextButton(
+                                onPressed: _clearFilters,
+                                child: Text("Limpar Filtros"),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
+                SizedBox(height: 24),
+              ]),
+            ),
+            // Widget TransactionList com filtros aplicados
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  return TransactionListFiltered(
+                    data: _selectedDate,
+                    valor: _selectedValue,
+                    tipoTransferencia: _selectedType,
+                  );
+                },
+                childCount: 1, // Apenas um TransactionListFiltered
               ),
-              SizedBox(height: 24),
-              // Widget TransactionList com filtros aplicados
-              TransactionListFiltered(
-                data: _selectedDate,
-                valor: _selectedValue,
-                tipoTransferencia: _selectedType,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
