@@ -26,6 +26,7 @@ class _EditTransactionState extends State<EditTransaction> {
   late TextEditingController valorController;
   List<String> tiposTransacao = ['Depósito', 'Saque', 'Transferência'];
   bool isLoading = false;
+  final _formKey = GlobalKey<FormState>(); // Chave para o formulário
 
   @override
   void initState() {
@@ -36,75 +37,94 @@ class _EditTransactionState extends State<EditTransaction> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Editar Transação',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: AppColors.white,
+    return Form(
+      key: _formKey, // Associa o formulário à chave
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Editar Transação',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: AppColors.white,
+            ),
           ),
-        ),
-        SizedBox(height: 20),
-        DropdownButtonFormField<String>(
-          value: tipoTransacao,
-          onChanged: (newValue) {
-            setState(() {
-              tipoTransacao = newValue;
-            });
-          },
-          items:
-              tiposTransacao.map((tipo) {
-                return DropdownMenuItem(value: tipo, child: Text(tipo));
-              }).toList(),
-          decoration: InputDecoration(
-            labelText: 'Tipo de Transação',
-            border: OutlineInputBorder(),
-            filled: true,
-            fillColor: AppColors.white,
-          ),
-          isExpanded: true,
-        ),
-        SizedBox(height: 20),
-        Text(
-          'Valor',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: AppColors.white,
-          ),
-        ),
-        SizedBox(height: 20),
-        TextFormField(
-          controller: valorController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: '00,00',
-            border: OutlineInputBorder(),
-            filled: true,
-            fillColor: AppColors.white,
-          ),
-          validator: (value) {
-            if (value!.isEmpty) {
-              return 'Por favor, insira um valor';
-            }
-            return null;
-          },
-        ),
-        SizedBox(height: 20),
-        Center(
-          child: CustomButton(
-            onPressed: () {
-              isLoading ? null : editarTransacao();
+          SizedBox(height: 20),
+          DropdownButtonFormField<String>(
+            value: tipoTransacao,
+            onChanged: (newValue) {
+              setState(() {
+                tipoTransacao = newValue;
+              });
             },
-            text: 'Salvar alterações',
-            backgroundColor: AppColors.darkTeal,
-            isLoading: isLoading,
+            items:
+                tiposTransacao.map((tipo) {
+                  return DropdownMenuItem(value: tipo, child: Text(tipo));
+                }).toList(),
+            decoration: InputDecoration(
+              labelText: 'Tipo de Transação',
+              border: OutlineInputBorder(),
+              filled: true,
+              fillColor: AppColors.white,
+            ),
+            isExpanded: true,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor, selecione um tipo de transação.';
+              }
+              return null;
+            },
           ),
-        ),
-      ],
+          SizedBox(height: 20),
+          Text(
+            'Valor',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.white,
+            ),
+          ),
+          SizedBox(height: 20),
+          TextFormField(
+            controller: valorController,
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(
+              labelText: '00,00',
+              border: OutlineInputBorder(),
+              filled: true,
+              fillColor: AppColors.white,
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Por favor, insira um valor.';
+              }
+              // Verifica se o valor é um número válido
+              final valorNumerico = double.tryParse(value.replaceAll(',', '.'));
+              if (valorNumerico == null) {
+                return 'Por favor, insira um valor numérico válido.';
+              }
+              if (valorNumerico <= 0) {
+                return 'O valor deve ser maior que zero.';
+              }
+              return null;
+            },
+          ),
+          SizedBox(height: 20),
+          Center(
+            child: CustomButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  isLoading ? null : editarTransacao();
+                }
+              },
+              text: 'Salvar alterações',
+              backgroundColor: AppColors.darkTeal,
+              isLoading: isLoading,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
