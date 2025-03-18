@@ -1,13 +1,14 @@
-# Tech Challenge - fase 01
+# Tech Challenge - fase 03
 
 ## Descrição
 
-Este projeto é uma aplicação de gerenciamento financeiro desenvolvida em Flutter. O principal objetivo é fornecer aos usuários uma interface amigável para o gerenciamento de suas transações financeiras.
+Este projeto é uma aplicação de gerenciamento financeiro desenvolvida em Flutter Mobile. O principal objetivo é fornecer aos usuários uma interface amigável para o gerenciamento de suas transações financeiras.
 
 ## Tecnologias Utilizadas
 
 - Flutter
-- Firebase
+- Cloud Firestore
+- Firebase Storage
 
 ## Como Configurar e Executar
 
