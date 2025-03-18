@@ -101,7 +101,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: PageView(
                 controller: _pageController,
                 children: [
-                  // Página 1: TransactionCard e TransactionList
                   SingleChildScrollView(
                     child: Column(
                       children: [
@@ -111,7 +110,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ],
                     ),
                   ),
-                  // Página 2: TransactionChartSummary
                   TransactionChartSummary(),
                 ],
               ),

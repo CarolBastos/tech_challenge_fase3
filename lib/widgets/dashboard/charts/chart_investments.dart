@@ -24,7 +24,8 @@ class InvestmentPieChart extends StatelessWidget {
 
   // Gera um valor aleatório entre 1000 e 10000
   static double _randomValue() {
-    return (1000 + (9000 * (DateTime.now().microsecond / 1000000))).roundToDouble();
+    return (1000 + (9000 * (DateTime.now().microsecond / 1000000)))
+        .roundToDouble();
   }
 
   @override
@@ -57,7 +58,7 @@ class InvestmentPieChart extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: AppColors.white,
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(4),
         child: Column(
           children: [
             Text(
@@ -94,7 +95,8 @@ class InvestmentPieChart extends StatelessWidget {
       return PieChartSectionData(
         color: color,
         value: entry.value,
-        title: '${(entry.value / investmentValues.values.reduce((a, b) => a + b) * 100).toStringAsFixed(1)}%',
+        title:
+            '${(entry.value / investmentValues.values.reduce((a, b) => a + b) * 100).toStringAsFixed(1)}%',
         titleStyle: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.bold,
@@ -110,22 +112,23 @@ class InvestmentPieChart extends StatelessWidget {
       alignment: WrapAlignment.center,
       spacing: 8,
       runSpacing: 8,
-      children: investmentColors.entries.map((entry) {
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(width: 12, height: 12, color: entry.value),
-            SizedBox(width: 4),
-            Text(
-              entry.key,
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.greyPlaceholder,
-              ),
-            ),
-          ],
-        );
-      }).toList(),
+      children:
+          investmentColors.entries.map((entry) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(width: 12, height: 12, color: entry.value),
+                SizedBox(width: 4),
+                Text(
+                  entry.key,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.greyPlaceholder,
+                  ),
+                ),
+              ],
+            );
+          }).toList(),
     );
   }
 
@@ -148,12 +151,16 @@ class InvestmentPieChart extends StatelessWidget {
         ),
         _buildSummaryCard(
           'Maior Investimento',
-          formatador.format(investmentValues.values.reduce((a, b) => a > b ? a : b)),
+          formatador.format(
+            investmentValues.values.reduce((a, b) => a > b ? a : b),
+          ),
           Colors.blue[600]!,
         ),
         _buildSummaryCard(
           'Menor Investimento',
-          formatador.format(investmentValues.values.reduce((a, b) => a < b ? a : b)),
+          formatador.format(
+            investmentValues.values.reduce((a, b) => a < b ? a : b),
+          ),
           Colors.green[600]!,
         ),
         _buildSummaryCard(
@@ -170,7 +177,7 @@ class InvestmentPieChart extends StatelessWidget {
       color: AppColors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(4),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

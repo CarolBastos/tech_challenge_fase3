@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tech_challenge_fase3/screens/login_screen.dart';
-import 'package:tech_challenge_fase3/screens/register_screen.dart';
 import '../app_colors.dart';
-import '../routes.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({Key? key});
