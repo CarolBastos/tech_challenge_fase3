@@ -37,13 +37,11 @@ class TransactionListFiltered extends StatelessWidget {
           return matchesData && matchesValor && matchesTipo;
         }).toList();
 
-    // Exibe a lista de transações filtradas
     return Column(
       children:
           transacoesFiltradas.map((transacao) {
             return GestureDetector(
-              onLongPress: () {
-                // Abre o diálogo de edição ao clicar e segurar
+              onTap: () {
                 _openEditTransactionDialog(context, transacao);
               },
               child: Card(
@@ -56,7 +54,7 @@ class TransactionListFiltered extends StatelessWidget {
                   subtitle: Text(
                     'Valor: ${transacao.valor.toStringAsFixed(2)}\nData: ${DateFormat('dd/MM/yyyy').format(transacao.data)}',
                   ),
-                  trailing: Icon(Icons.arrow_forward_ios),
+                  trailing: Icon(Icons.edit),
                 ),
               ),
             );
