@@ -1,82 +1,118 @@
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:tech_challenge_fase3/app_colors.dart';
 
-class PieChartWidget extends StatelessWidget {
+class PieChartSample1 extends StatefulWidget {
+  const PieChartSample1({super.key});
+
+  @override
+  State<StatefulWidget> createState() => PieChartSample1State();
+}
+
+class PieChartSample1State extends State {
+  int touchedIndex = -1;
+
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
       aspectRatio: 1.3,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(16)),
-          color: Colors.white,
-        ),
-        width: double.infinity,
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Expanded(
+      child: Column(
+        children: <Widget>[
+          const SizedBox(
+            height: 28,
+          ),
+          
+          const SizedBox(
+            height: 18,
+          ),
+          Expanded(
+            child: AspectRatio(
+              aspectRatio: 1,
               child: PieChart(
                 PieChartData(
-                  sections: getSections(),
-                  centerSpaceRadius: 50,
-                  sectionsSpace: 0,
+                  pieTouchData: PieTouchData(
+                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                      setState(() {
+                        if (!event.isInterestedForInteractions ||
+                            pieTouchResponse == null ||
+                            pieTouchResponse.touchedSection == null) {
+                          touchedIndex = -1;
+                          return;
+                        }
+                        touchedIndex = pieTouchResponse
+                            .touchedSection!.touchedSectionIndex;
+                      });
+                    },
+                  ),
+                  startDegreeOffset: 180,
+                  borderData: FlBorderData(
+                    show: false,
+                  ),
+                  sectionsSpace: 1,
+                  centerSpaceRadius: 0,
+                  sections: showingSections(),
                 ),
               ),
             ),
-            Text('Testando', style: TextStyle(color: Colors.black)),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  List<PieChartSectionData> getSections() {
-    return [
-      PieChartSectionData(
-        color: Colors.blue,
-        value: 40,
-        title: 'Investimento',
-        radius: 50,
-        titleStyle: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      PieChartSectionData(
-        color: Colors.green,
-        value: 30,
-        title: 'Renda fixa',
-        radius: 50,
-        titleStyle: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      PieChartSectionData(
-        color: Colors.orange,
-        value: 15,
-        title: 'Tesouro direto',
-        radius: 50,
-        titleStyle: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-      PieChartSectionData(
-        color: Colors.red,
-        value: 15,
-        title: 'Bolsa de valores',
-        radius: 50,
-        titleStyle: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
-    ];
+  List<PieChartSectionData> showingSections() {
+    return List.generate(
+      3,
+      (i) {
+        final isTouched = i == touchedIndex;
+        const color0 = AppColors.primary;
+        const color1 = AppColors.primary;
+        const color2 = AppColors.primary;
+
+        switch (i) {
+          case 0:
+            return PieChartSectionData(
+              color: color0,
+              value: 25,
+              title: '',
+              radius: 80,
+              titlePositionPercentageOffset: 0.55,
+              borderSide: isTouched
+                  ? const BorderSide(
+                      color: AppColors.primary, width: 6)
+                  : BorderSide(
+                      color: AppColors.primary.withValues(alpha: 0)),
+            );
+          case 1:
+            return PieChartSectionData(
+              color: color1,
+              value: 25,
+              title: '',
+              radius: 65,
+              titlePositionPercentageOffset: 0.55,
+              borderSide: isTouched
+                  ? const BorderSide(
+                      color: AppColors.primary, width: 6)
+                  : BorderSide(
+                      color: AppColors.primary.withValues(alpha: 0)),
+            );
+          case 2:
+            return PieChartSectionData(
+              color: color2,
+              value: 25,
+              title: '',
+              radius: 60,
+              titlePositionPercentageOffset: 0.6,
+              borderSide: isTouched
+                  ? const BorderSide(
+                      color: AppColors.primary, width: 6)
+                  : BorderSide(
+                      color: AppColors.primary.withValues(alpha: 0)),
+            );
+          default:
+            throw Error();
+        }
+      },
+    );
   }
 }
