@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tech_challenge_fase3/provider/transaction_provider.dart';
+import 'package:tech_challenge_fase3/widgets/dashboard/charts/chart_transactions.dart';
 import 'package:tech_challenge_fase3/widgets/dashboard/menu/custom_app_bar.dart';
 import 'package:tech_challenge_fase3/widgets/dashboard/menu/custom_drawer.dart';
 import 'package:tech_challenge_fase3/widgets/dashboard/new_transaction/transaction_card.dart';
@@ -17,6 +17,9 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final PageController _pageController = PageController(
+    initialPage: 0,
+  ); // Controlador do PageView
 
   @override
   void initState() {
@@ -83,22 +86,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
       drawer: const CustomDrawer(),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Text(
-                "Olá, ${userModel.displayName}! :)",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        child: Column(
+          children: [
+            Text(
+              "Olá, ${userModel.displayName}! :)",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              "Saldo: R\$ ${userModel.balance}",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 24),
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                children: [
+                  // Página 1: TransactionCard e TransactionList
+                  SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        TransactionCard(),
+                        SizedBox(height: 24),
+                        TransactionList(),
+                      ],
+                    ),
+                  ),
+                  // Página 2: TransactionChartSummary
+                  TransactionChartSummary(),
+                ],
               ),
-              Text(
-                "Saldo: R\$ ${userModel.balance}",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              TransactionCard(),
-              SizedBox(height: 24),
-              TransactionList(),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

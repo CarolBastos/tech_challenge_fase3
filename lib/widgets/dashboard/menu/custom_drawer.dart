@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/screens/dashboard_screen.dart';
 import 'package:tech_challenge_fase3/screens/transactions_screen.dart';
+import 'package:tech_challenge_fase3/widgets/dashboard/charts/chart_investments.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -38,6 +39,10 @@ class CustomDrawer extends StatelessWidget {
             title: Text('Investimentos'),
             onTap: () {
               Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => InvestmentPieChart()),
+              );
             },
           ),
           ListTile(
