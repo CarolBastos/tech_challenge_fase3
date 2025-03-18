@@ -1,16 +1,51 @@
-# tech_challenge_fase3
+# Tech Challenge - fase 03
 
-A new Flutter project.
+## Descrição
 
-## Getting Started
+Este projeto é uma aplicação de gerenciamento financeiro desenvolvida em Flutter Mobile. O principal objetivo é fornecer aos usuários uma interface amigável para o gerenciamento de suas transações financeiras.
 
-This project is a starting point for a Flutter application.
+## Tecnologias Utilizadas
 
-A few resources to get you started if this is your first Flutter project:
+- Flutter
+- Cloud Firestore
+- Firebase Storage
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Como Configurar e Executar
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Clone o repositório:
+   ```bash
+   git clone git@github.com:CarolBastos/tech_challenge_fase3.git
+   ```
+
+2. Adicione o arquivo google-service.json:
+    Coloque este arquivo no diretório android/app com as credenciais do Firebase.
+
+3. Liste emuladores disponíveis:
+   ```bash
+   flutter emulators
+   ```
+    Se não houver emuladores listados, será necessário criar um.
+
+4. Inicie emulador escolhido:
+   ```bash
+   flutter emulators --launch <emulator_id>
+   ```
+
+5. Execute o projeto:
+   ```bash
+   flutter run
+   ```
+
+## Contribuições
+
+- Anderson
+- Carol Bastos
+- Christian Martins
+- Igor França
+- Tayná Martins Ramos
+
+## Obs: Nesse projeto os dados estão mockados, para acessar o dashboard, vá até a pagina de login e digite os seguintes dados:
+```
+   usuario: fiap@gmail.com
+   senha: 123456
+```
