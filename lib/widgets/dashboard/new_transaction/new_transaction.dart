@@ -30,6 +30,8 @@ class _NewTransactionState extends State<NewTransaction> {
 
   @override
   Widget build(BuildContext context) {
+    final userModel = Provider.of<UserModel>(context);
+
     return Form(
       key: _formKey, // Associa o formulário à chave
       child: Column(
@@ -99,6 +101,13 @@ class _NewTransactionState extends State<NewTransaction> {
               }
               if (valorNumerico <= 0) {
                 return 'O valor deve ser maior que zero.';
+              }
+              // Verifica se o valor excede o saldo disponível para saque ou transferência
+              if (tipoTransacao == 'Saque' ||
+                  tipoTransacao == 'Transferência') {
+                if (valorNumerico > userModel.balance) {
+                  return 'Saldo insuficiente. Saldo atual: R\$ ${userModel.balance.toStringAsFixed(2)}';
+                }
               }
               return null;
             },
