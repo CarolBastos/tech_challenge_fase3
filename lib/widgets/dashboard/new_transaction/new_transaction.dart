@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:tech_challenge_fase3/models/user_model.dart';
+import 'package:tech_challenge_fase3/widgets/dashboard/new_transaction/upload_transaction.dart';
 
 class NewTransaction extends StatefulWidget {
   @override
@@ -16,10 +17,21 @@ class _NewTransactionState extends State<NewTransaction> {
   TextEditingController valorController = TextEditingController();
   List<String> tiposTransacao = ['Depósito', 'Saque', 'Transferência'];
   bool isLoading = false;
+  final GlobalKey<UploadTransactionState> uploadKey =
+      GlobalKey<UploadTransactionState>();
+
+  void _updateLoading(bool loading) {
+    setState(() {
+      isLoading = loading;
+    });
+  }
+
   final _formKey = GlobalKey<FormState>(); // Chave para o formulário
 
   @override
   Widget build(BuildContext context) {
+    final userModel = Provider.of<UserModel>(context);
+
     return Form(
       key: _formKey, // Associa o formulário à chave
       child: Column(
@@ -90,9 +102,18 @@ class _NewTransactionState extends State<NewTransaction> {
               if (valorNumerico <= 0) {
                 return 'O valor deve ser maior que zero.';
               }
+              // Verifica se o valor excede o saldo disponível para saque ou transferência
+              if (tipoTransacao == 'Saque' ||
+                  tipoTransacao == 'Transferência') {
+                if (valorNumerico > userModel.balance) {
+                  return 'Saldo insuficiente. Saldo atual: R\$ ${userModel.balance.toStringAsFixed(2)}';
+                }
+              }
               return null;
             },
           ),
+          SizedBox(height: 20),
+          UploadTransaction(key: uploadKey, onLoadingChange: _updateLoading),
           SizedBox(height: 20),
           Center(
             child: CustomButton(
@@ -207,6 +228,10 @@ class _NewTransactionState extends State<NewTransaction> {
           backgroundColor: Colors.green,
         ),
       );
+
+      await uploadKey.currentState?.uploadToFirebase();
+
+      uploadKey.currentState?.reset();
 
       setState(() {
         tipoTransacao = null;
