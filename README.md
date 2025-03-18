@@ -44,7 +44,7 @@ Este projeto é uma aplicação de gerenciamento financeiro desenvolvida em Flut
 - Igor França
 - Tayná Martins Ramos
 
-## Obs: Nesse projeto os dados estão mockados, para acessar o dashboard, vá até a pagina de login e digite os seguintes dados:
+## Obs: Nesse projeto para acessar o dashboard, vá até a pagina de login e digite os seguintes dados:
 ```
    usuario: fiap@gmail.com
    senha: 123456
