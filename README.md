@@ -19,6 +19,7 @@ Este projeto é uma aplicação de gerenciamento financeiro desenvolvida em Flut
 
 2. Adicione o arquivo google-service.json:
     Coloque este arquivo no diretório android/app com as credenciais do Firebase.
+    Por conter nossas credenciais, esse arquivo se encontra no link do Google Drive que disponibilizamos na plataforma da Fiap.
 
 3. Liste emuladores disponíveis:
    ```bash
@@ -43,9 +44,3 @@ Este projeto é uma aplicação de gerenciamento financeiro desenvolvida em Flut
 - Christian Martins
 - Igor França
 - Tayná Martins Ramos
-
-## Obs: Nesse projeto para acessar o dashboard, vá até a pagina de login e digite os seguintes dados:
-```
-   usuario: fiap@gmail.com
-   senha: 123456
-```
