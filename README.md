@@ -44,3 +44,5 @@ Este projeto é uma aplicação de gerenciamento financeiro desenvolvida em Flut
 - Christian Martins
 - Igor França
 - Tayná Martins Ramos
+
+Observação: Incluimos no link do Google Drive a versão release do apk para facilitar a instalação do app.
