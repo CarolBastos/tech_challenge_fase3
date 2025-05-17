@@ -1,10 +1,14 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
+import 'package:tech_challenge_fase3/app_state.dart';
+import 'package:tech_challenge_fase3/models/user_actions.dart';
 import 'package:tech_challenge_fase3/widgets/custom_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
-import 'package:tech_challenge_fase3/models/user_model.dart';
+
+import 'package:flutter_redux/flutter_redux.dart';
 
 class EditTransaction extends StatefulWidget {
   final DateTime data;
@@ -26,7 +30,7 @@ class _EditTransactionState extends State<EditTransaction> {
   late TextEditingController valorController;
   List<String> tiposTransacao = ['Depósito', 'Saque', 'Transferência'];
   bool isLoading = false;
-  final _formKey = GlobalKey<FormState>(); // Chave para o formulário
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -38,7 +42,7 @@ class _EditTransactionState extends State<EditTransaction> {
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: _formKey, // Associa o formulário à chave
+      key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -99,7 +103,6 @@ class _EditTransactionState extends State<EditTransaction> {
               if (value == null || value.isEmpty) {
                 return 'Por favor, insira um valor.';
               }
-              // Verifica se o valor é um número válido
               final valorNumerico = double.tryParse(value.replaceAll(',', '.'));
               if (valorNumerico == null) {
                 return 'Por favor, insira um valor numérico válido.';
@@ -180,7 +183,7 @@ class _EditTransactionState extends State<EditTransaction> {
         isLoading = true;
       });
 
-      // Consulta a transação com base no campo `data` (Timestamp)
+      // Consulta a transação
       QuerySnapshot querySnapshot =
           await FirebaseFirestore.instance
               .collection('transacoes')
@@ -199,7 +202,6 @@ class _EditTransactionState extends State<EditTransaction> {
         return;
       }
 
-      // Recupera o documento da transação
       DocumentSnapshot transactionDoc = querySnapshot.docs.first;
       double valorAntigo =
           double.tryParse(transactionDoc['valor'].replaceAll(',', '.')) ?? 0;
@@ -220,21 +222,24 @@ class _EditTransactionState extends State<EditTransaction> {
       double balanceCurrent = (userDoc['saldo'] ?? 0).toDouble();
 
       // Reverte o valor antigo e aplica o novo valor
-      double newBalance =
-          balanceCurrent + valorAntigo; // Reverte o valor antigo
-      newBalance = calculateNewBalance(
-        newBalance,
-        valor,
-        tipoTransacao!,
-      ); // Aplica o novo valor
+      double newBalance = balanceCurrent + valorAntigo;
+      newBalance = calculateNewBalance(newBalance, valor, tipoTransacao!);
 
+      // Atualiza no Firestore
       await FirebaseFirestore.instance
           .collection('usuarios')
           .doc(usuario.uid)
           .update({'saldo': newBalance});
 
-      final userModel = Provider.of<UserModel>(context, listen: false);
-      userModel.updateUser(userModel.displayName, newBalance);
+      // Atualiza no Redux
+      final store = StoreProvider.of<AppState>(context);
+      store.dispatch(
+        UpdateUserAction(
+          uid: usuario.uid,
+          displayName: store.state.userState.displayName,
+          balance: newBalance,
+        ),
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -249,7 +254,7 @@ class _EditTransactionState extends State<EditTransaction> {
         isLoading = false;
       });
 
-      Navigator.of(context).pop(); // Fecha o diálogo ou a tela de edição
+      Navigator.of(context).pop();
     } catch (e) {
       setState(() {
         isLoading = false;
