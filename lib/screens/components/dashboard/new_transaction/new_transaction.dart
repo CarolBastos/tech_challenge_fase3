@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
-import 'package:tech_challenge_fase3/screens/widgets/custom_button.dart';
+import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
 import 'package:provider/provider.dart';
 import 'package:tech_challenge_fase3/models/user_state.dart';
-import 'package:tech_challenge_fase3/screens/widgets/dashboard/new_transaction/upload_transaction.dart';
+import 'package:tech_challenge_fase3/screens/components/dashboard/new_transaction/upload_transaction.dart';
 import 'package:tech_challenge_fase3/provider/transaction_provider.dart';
 
 import 'package:flutter_redux/flutter_redux.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tech_challenge_fase3/provider/transaction_provider.dart';
-import 'package:tech_challenge_fase3/screens/widgets/dashboard/transaction_list/transaction_list_view.dart';
+import 'package:tech_challenge_fase3/screens/components/dashboard/transaction_list/transaction_list_view.dart';
 
 class TransactionList extends StatelessWidget {
   @override

@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
-import 'package:tech_challenge_fase3/screens/widgets/dashboard/transaction_list/transaction_list_filtered.dart';
+import 'package:tech_challenge_fase3/screens/components/dashboard/transaction_list/transaction_list_filtered.dart';
 import 'package:tech_challenge_fase3/models/user_state.dart';
-import 'widgets/dashboard/menu/custom_app_bar.dart';
-import 'widgets/dashboard/menu/custom_drawer.dart';
+import 'components/dashboard/menu/custom_app_bar.dart';
+import 'components/dashboard/menu/custom_drawer.dart';
 
 import 'package:flutter_redux/flutter_redux.dart';
 

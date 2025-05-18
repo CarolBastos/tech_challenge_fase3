@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
-import 'package:tech_challenge_fase3/screens/widgets/dashboard/new_transaction/new_transaction.dart';
+import 'package:tech_challenge_fase3/screens/components/dashboard/new_transaction/new_transaction.dart';
 
 class TransactionCard extends StatelessWidget {
   const TransactionCard({super.key});
