@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
 import 'package:tech_challenge_fase3/data/api/transaction_api.dart';
+import 'package:tech_challenge_fase3/data/api/user_api.dart';
 import 'package:tech_challenge_fase3/domain/models/user_actions.dart';
 import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -33,6 +34,7 @@ class _EditTransactionState extends State<EditTransaction> {
   bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
   final _transactionApi = TransactionApi();
+  final UserApi _userApi = UserApi();
 
   @override
   void initState() {
@@ -158,13 +160,9 @@ class _EditTransactionState extends State<EditTransaction> {
         newValue: valorController.text,
       );
 
-      final userDoc =
-          await FirebaseFirestore.instance
-              .collection('usuarios')
-              .doc(usuario.uid)
-              .get();
-
-      final newBalance = (userDoc['saldo'] ?? 0).toDouble();
+      final newBalance = await _userApi.getUserBalanceEditTransaction(
+        usuario.uid,
+      );
 
       final store = StoreProvider.of<AppState>(context);
       store.dispatch(

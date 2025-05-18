@@ -35,4 +35,10 @@ class UserApi {
 
     return 0.0;
   }
+
+  Future<double> getUserBalanceEditTransaction(String uid) async {
+    final doc = await _firestore.collection('usuarios').doc(uid).get();
+
+    return (doc['saldo'] ?? 0).toDouble();
+  }
 }
