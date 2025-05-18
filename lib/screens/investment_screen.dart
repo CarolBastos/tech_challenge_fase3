@@ -3,7 +3,7 @@ import 'package:tech_challenge_fase3/app_state.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/charts/chart_investments.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/menu/custom_app_bar.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/menu/custom_drawer.dart';
-import 'package:tech_challenge_fase3/models/user_state.dart';
+import 'package:tech_challenge_fase3/domain/models/user_state.dart';
 import '../app_colors.dart';
 
 import 'package:flutter_redux/flutter_redux.dart';

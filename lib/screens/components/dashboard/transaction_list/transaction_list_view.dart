@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
-import 'package:tech_challenge_fase3/models/transaction_model.dart';
+import 'package:tech_challenge_fase3/domain/models/transaction_model.dart';
 import 'package:intl/src/intl/date_format.dart';
 import 'package:intl/intl.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/transaction_list/convertMonthToPortuguese.dart';

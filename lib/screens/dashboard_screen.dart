@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
-import 'package:tech_challenge_fase3/models/user_actions.dart';
+import 'package:tech_challenge_fase3/domain/models/user_actions.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/charts/chart_transactions.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/menu/custom_app_bar.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/menu/custom_drawer.dart';
@@ -10,7 +10,7 @@ import 'package:tech_challenge_fase3/screens/components/dashboard/new_transactio
 import 'package:tech_challenge_fase3/screens/components/dashboard/transaction_list/transaction_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tech_challenge_fase3/models/user_state.dart';
+import 'package:tech_challenge_fase3/domain/models/user_state.dart';
 import '../app_colors.dart';
 
 import 'package:flutter_redux/flutter_redux.dart';

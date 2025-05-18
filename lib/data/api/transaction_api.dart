@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tech_challenge_fase3/models/transaction_model.dart';
+import 'package:tech_challenge_fase3/domain/models/transaction_model.dart';
 
 class TransactionApi {
   final _firestore = FirebaseFirestore.instance;
