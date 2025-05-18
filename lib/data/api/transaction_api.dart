@@ -45,4 +45,57 @@ class TransactionApi {
       'saldo': newBalance,
     });
   }
+
+  Future<void> editTransaction({
+    required DateTime date,
+    required String newType,
+    required String newValue,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('Usuário não autenticado');
+
+    final valorNumerico = double.tryParse(newValue.replaceAll(',', '.')) ?? 0;
+    if (valorNumerico <= 0) throw Exception('Valor deve ser maior que zero');
+
+    final querySnapshot =
+        await _firestore
+            .collection('transacoes')
+            .where('user_id', isEqualTo: user.uid)
+            .where('data', isEqualTo: Timestamp.fromDate(date))
+            .limit(1)
+            .get();
+
+    if (querySnapshot.docs.isEmpty) {
+      throw Exception('Transação não encontrada');
+    }
+
+    final transactionDoc = querySnapshot.docs.first;
+    final valorAntigo =
+        double.tryParse(transactionDoc['valor'].replaceAll(',', '.')) ?? 0;
+
+    await transactionDoc.reference.update({'tipo': newType, 'valor': newValue});
+
+    final userDoc = await _firestore.collection('usuarios').doc(user.uid).get();
+    double saldoAtual = (userDoc['saldo'] ?? 0).toDouble();
+
+    saldoAtual += valorAntigo;
+
+    saldoAtual = _calculateNewBalance(saldoAtual, valorNumerico, newType);
+
+    await updateUserBalance(user.uid, saldoAtual);
+  }
+
+  bool _isNegativeTransaction(String type) {
+    return type == 'Saque' || type == 'Transferência';
+  }
+
+  double _calculateNewBalance(
+    double currentBalance,
+    double amount,
+    String type,
+  ) {
+    return _isNegativeTransaction(type)
+        ? currentBalance - amount
+        : currentBalance + amount;
+  }
 }
