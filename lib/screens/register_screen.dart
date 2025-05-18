@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tech_challenge_fase3/domain/business/auth_workflow.dart';
 import 'package:tech_challenge_fase3/routes.dart';
 import 'package:tech_challenge_fase3/screens/login_screen.dart';
 import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
@@ -20,6 +20,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nameController = TextEditingController();
   String _errorMessage = '';
   bool isLoading = false;
+
+  final AuthWorkflow _authWorkflow = AuthWorkflow();
 
   @override
   void dispose() {
@@ -119,25 +121,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _errorMessage = '';
       });
 
-      bool isValid = _validate();
-      if (!isValid) {
+      if (!_validate()) {
         setState(() {
           isLoading = false;
         });
         return;
       }
 
-      UserCredential userCredential = await FirebaseAuth.instance
-          .createUserWithEmailAndPassword(
-            email: _emailController.text,
-            password: _passwordController.text,
-          );
-
-      User? user = userCredential.user;
-      if (user != null) {
-        await user.updateProfile(displayName: _nameController.text);
-        await user.reload();
-      }
+      await _authWorkflow.register(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        name: _nameController.text.trim(),
+      );
 
       Navigator.pushReplacementNamed(context, Routes.login);
     } catch (e) {
@@ -150,17 +145,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _validate() {
     if (_nameController.text.isEmpty) {
-      _errorMessage = 'Informe o nome';
+      setState(() {
+        _errorMessage = 'Informe o nome';
+      });
       return false;
     }
 
     if (_emailController.text.isEmpty) {
-      _errorMessage = 'Informe o email';
+      setState(() {
+        _errorMessage = 'Informe o email';
+      });
       return false;
     }
 
     if (_passwordController.text.isEmpty) {
-      _errorMessage = 'Informe a senha';
+      setState(() {
+        _errorMessage = 'Informe a senha';
+      });
       return false;
     }
 
