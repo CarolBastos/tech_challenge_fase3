@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tech_challenge_fase3/domain/business/auth_workflow.dart';
 import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
 import '../app_colors.dart';
 import '../routes.dart';
@@ -13,11 +13,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
   bool isLoading = false;
+
+  final AuthWorkflow _authWorkflow = AuthWorkflow();
 
   @override
   void dispose() {
@@ -78,9 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 8),
               CustomButton(
-                onPressed: () {
-                  isLoading ? null : _login();
-                },
+                onPressed: () => isLoading ? null : _handleLogin(),
                 width: 144,
                 text: 'Entrar',
                 backgroundColor: AppColors.error,
@@ -93,29 +92,29 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _login() async {
-    try {
+  Future<void> _handleLogin() async {
+    setState(() {
+      isLoading = true;
+      _errorMessage = '';
+    });
+
+    if (!_validate()) {
       setState(() {
-        isLoading = true;
-        _errorMessage = '';
+        isLoading = false;
       });
+      return;
+    }
 
-      bool isValid = _validate();
-      if (!isValid) {
-        setState(() {
-          isLoading = false;
-        });
-        return;
-      }
-
-      await _auth.signInWithEmailAndPassword(
+    try {
+      await _authWorkflow.login(
         email: _emailController.text,
         password: _passwordController.text,
       );
+
       Navigator.pushReplacementNamed(context, Routes.dashboard);
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = 'Erro ao fazer login. Verifique suas credenciais.';
         isLoading = false;
       });
     }
