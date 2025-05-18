@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
+import 'package:tech_challenge_fase3/data/api/transaction_api.dart';
+import 'package:tech_challenge_fase3/data/api/user_api.dart';
 import 'package:tech_challenge_fase3/domain/models/user_actions.dart';
 import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -31,6 +33,8 @@ class _EditTransactionState extends State<EditTransaction> {
   List<String> tiposTransacao = ['Depósito', 'Saque', 'Transferência'];
   bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
+  final _transactionApi = TransactionApi();
+  final UserApi _userApi = UserApi();
 
   @override
   void initState() {
@@ -132,7 +136,7 @@ class _EditTransactionState extends State<EditTransaction> {
   }
 
   Future<void> editarTransacao() async {
-    User? usuario = FirebaseAuth.instance.currentUser;
+    final usuario = FirebaseAuth.instance.currentUser;
 
     if (usuario == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -144,94 +148,22 @@ class _EditTransactionState extends State<EditTransaction> {
       return;
     }
 
-    if (tipoTransacao == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Por favor, selecione o tipo de transação.'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
-    if (valorController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Por favor, insira o valor da transação.'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
-    double valor =
-        double.tryParse(valorController.text.replaceAll(',', '.')) ?? 0;
-    if (valor <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('O valor da transação deve ser maior que zero.'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-
     try {
       FocusScope.of(context).unfocus();
-
       setState(() {
         isLoading = true;
       });
 
-      // Consulta a transação
-      QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance
-              .collection('transacoes')
-              .where('user_id', isEqualTo: usuario.uid)
-              .where('data', isEqualTo: widget.data)
-              .limit(1)
-              .get();
+      await _transactionApi.editTransaction(
+        date: widget.data,
+        newType: tipoTransacao!,
+        newValue: valorController.text,
+      );
 
-      if (querySnapshot.docs.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Transação não encontrada.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
+      final newBalance = await _userApi.getUserBalanceEditTransaction(
+        usuario.uid,
+      );
 
-      DocumentSnapshot transactionDoc = querySnapshot.docs.first;
-      double valorAntigo =
-          double.tryParse(transactionDoc['valor'].replaceAll(',', '.')) ?? 0;
-
-      // Atualiza a transação no Firestore
-      await transactionDoc.reference.update({
-        'tipo': tipoTransacao,
-        'valor': valorController.text,
-      });
-
-      // Atualiza o saldo do usuário
-      DocumentSnapshot userDoc =
-          await FirebaseFirestore.instance
-              .collection('usuarios')
-              .doc(usuario.uid)
-              .get();
-
-      double balanceCurrent = (userDoc['saldo'] ?? 0).toDouble();
-
-      // Reverte o valor antigo e aplica o novo valor
-      double newBalance = balanceCurrent + valorAntigo;
-      newBalance = calculateNewBalance(newBalance, valor, tipoTransacao!);
-
-      // Atualiza no Firestore
-      await FirebaseFirestore.instance
-          .collection('usuarios')
-          .doc(usuario.uid)
-          .update({'saldo': newBalance});
-
-      // Atualiza no Redux
       final store = StoreProvider.of<AppState>(context);
       store.dispatch(
         UpdateUserAction(
@@ -267,19 +199,5 @@ class _EditTransactionState extends State<EditTransaction> {
         ),
       );
     }
-  }
-
-  bool isNegativeTransaction(String type) {
-    return type == 'Saque' || type == 'Transferência';
-  }
-
-  double calculateNewBalance(
-    double currentBalance,
-    double amount,
-    String type,
-  ) {
-    return isNegativeTransaction(type)
-        ? currentBalance - amount
-        : currentBalance + amount;
   }
 }
