@@ -1,44 +1,53 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
-import 'package:tech_challenge_fase3/widgets/custom_button.dart';
+import 'package:tech_challenge_fase3/app_state.dart';
+import 'package:tech_challenge_fase3/models/user_actions.dart';
+import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
-import 'package:tech_challenge_fase3/models/user_model.dart';
-import 'package:tech_challenge_fase3/widgets/dashboard/new_transaction/upload_transaction.dart';
 
-class NewTransaction extends StatefulWidget {
+import 'package:flutter_redux/flutter_redux.dart';
+
+class EditTransaction extends StatefulWidget {
+  final DateTime data;
+  final String tipoTransacao;
+  final String valor;
+
+  EditTransaction({
+    required this.data,
+    required this.tipoTransacao,
+    required this.valor,
+  });
+
   @override
-  _NewTransactionState createState() => _NewTransactionState();
+  _EditTransactionState createState() => _EditTransactionState();
 }
 
-class _NewTransactionState extends State<NewTransaction> {
-  String? tipoTransacao;
-  TextEditingController valorController = TextEditingController();
+class _EditTransactionState extends State<EditTransaction> {
+  late String? tipoTransacao;
+  late TextEditingController valorController;
   List<String> tiposTransacao = ['Depósito', 'Saque', 'Transferência'];
   bool isLoading = false;
-  final GlobalKey<UploadTransactionState> uploadKey =
-      GlobalKey<UploadTransactionState>();
+  final _formKey = GlobalKey<FormState>();
 
-  void _updateLoading(bool loading) {
-    setState(() {
-      isLoading = loading;
-    });
+  @override
+  void initState() {
+    super.initState();
+    tipoTransacao = widget.tipoTransacao;
+    valorController = TextEditingController(text: widget.valor);
   }
-
-  final _formKey = GlobalKey<FormState>(); // Chave para o formulário
 
   @override
   Widget build(BuildContext context) {
-    final userModel = Provider.of<UserModel>(context);
-
     return Form(
-      key: _formKey, // Associa o formulário à chave
+      key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Nova Transação',
+            'Editar Transação',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -94,7 +103,6 @@ class _NewTransactionState extends State<NewTransaction> {
               if (value == null || value.isEmpty) {
                 return 'Por favor, insira um valor.';
               }
-              // Verifica se o valor é um número válido
               final valorNumerico = double.tryParse(value.replaceAll(',', '.'));
               if (valorNumerico == null) {
                 return 'Por favor, insira um valor numérico válido.';
@@ -102,27 +110,18 @@ class _NewTransactionState extends State<NewTransaction> {
               if (valorNumerico <= 0) {
                 return 'O valor deve ser maior que zero.';
               }
-              // Verifica se o valor excede o saldo disponível para saque ou transferência
-              if (tipoTransacao == 'Saque' ||
-                  tipoTransacao == 'Transferência') {
-                if (valorNumerico > userModel.balance) {
-                  return 'Saldo insuficiente. Saldo atual: R\$ ${userModel.balance.toStringAsFixed(2)}';
-                }
-              }
               return null;
             },
           ),
-          SizedBox(height: 20),
-          UploadTransaction(key: uploadKey, onLoadingChange: _updateLoading),
           SizedBox(height: 20),
           Center(
             child: CustomButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  isLoading ? null : concluirTransacao();
+                  isLoading ? null : editarTransacao();
                 }
               },
-              text: 'Concluir a transação',
+              text: 'Salvar alterações',
               backgroundColor: AppColors.darkTeal,
               isLoading: isLoading,
             ),
@@ -132,7 +131,7 @@ class _NewTransactionState extends State<NewTransaction> {
     );
   }
 
-  Future<void> concluirTransacao() async {
+  Future<void> editarTransacao() async {
     User? usuario = FirebaseAuth.instance.currentUser;
 
     if (usuario == null) {
@@ -184,6 +183,36 @@ class _NewTransactionState extends State<NewTransaction> {
         isLoading = true;
       });
 
+      // Consulta a transação
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('transacoes')
+              .where('user_id', isEqualTo: usuario.uid)
+              .where('data', isEqualTo: widget.data)
+              .limit(1)
+              .get();
+
+      if (querySnapshot.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Transação não encontrada.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      DocumentSnapshot transactionDoc = querySnapshot.docs.first;
+      double valorAntigo =
+          double.tryParse(transactionDoc['valor'].replaceAll(',', '.')) ?? 0;
+
+      // Atualiza a transação no Firestore
+      await transactionDoc.reference.update({
+        'tipo': tipoTransacao,
+        'valor': valorController.text,
+      });
+
+      // Atualiza o saldo do usuário
       DocumentSnapshot userDoc =
           await FirebaseFirestore.instance
               .collection('usuarios')
@@ -191,53 +220,41 @@ class _NewTransactionState extends State<NewTransaction> {
               .get();
 
       double balanceCurrent = (userDoc['saldo'] ?? 0).toDouble();
-      double newBalance = calculateNewBalance(
-        balanceCurrent,
-        valor,
-        tipoTransacao!,
-      );
 
-      if (newBalance < 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Saldo insuficiente para esta transação.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
+      // Reverte o valor antigo e aplica o novo valor
+      double newBalance = balanceCurrent + valorAntigo;
+      newBalance = calculateNewBalance(newBalance, valor, tipoTransacao!);
 
-      await FirebaseFirestore.instance.collection('transacoes').add({
-        'user_id': usuario.uid,
-        'tipo': tipoTransacao,
-        'valor': valorController.text,
-        'data': FieldValue.serverTimestamp(),
-      });
-
+      // Atualiza no Firestore
       await FirebaseFirestore.instance
           .collection('usuarios')
           .doc(usuario.uid)
           .update({'saldo': newBalance});
 
-      final userModel = Provider.of<UserModel>(context, listen: false);
-      userModel.updateUser(userModel.displayName, newBalance);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Transação concluída com sucesso!'),
-          backgroundColor: Colors.green,
+      // Atualiza no Redux
+      final store = StoreProvider.of<AppState>(context);
+      store.dispatch(
+        UpdateUserAction(
+          uid: usuario.uid,
+          displayName: store.state.userState.displayName,
+          balance: newBalance,
         ),
       );
 
-      await uploadKey.currentState?.uploadToFirebase();
-
-      uploadKey.currentState?.reset();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Transação editada com sucesso!'),
+          backgroundColor: Colors.green,
+        ),
+      );
 
       setState(() {
         tipoTransacao = null;
         valorController.clear();
         isLoading = false;
       });
+
+      Navigator.of(context).pop();
     } catch (e) {
       setState(() {
         isLoading = false;
@@ -245,7 +262,7 @@ class _NewTransactionState extends State<NewTransaction> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Erro ao cadastrar transação: $e'),
+          content: Text('Erro ao editar transação: $e'),
           backgroundColor: Colors.red,
         ),
       );

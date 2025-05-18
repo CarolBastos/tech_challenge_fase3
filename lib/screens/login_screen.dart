@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tech_challenge_fase3/widgets/custom_button.dart';
+import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
 import '../app_colors.dart';
 import '../routes.dart';
-import '../widgets/custom_text_field.dart';
+import 'components/custom_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
