@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
-import 'package:tech_challenge_fase3/models/user_actions.dart';
+import 'package:tech_challenge_fase3/domain/models/user_actions.dart';
 import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

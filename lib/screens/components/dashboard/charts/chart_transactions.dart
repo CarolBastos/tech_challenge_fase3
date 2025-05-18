@@ -4,7 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/provider/transaction_provider.dart';
-import 'package:tech_challenge_fase3/models/transaction_model.dart';
+import 'package:tech_challenge_fase3/domain/models/transaction_model.dart';
 
 class TransactionChartSummary extends StatelessWidget {
   final Map<String, Color> tipoCores = {
