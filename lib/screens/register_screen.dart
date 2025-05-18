@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tech_challenge_fase3/routes.dart';
 import 'package:tech_challenge_fase3/screens/login_screen.dart';
-import 'package:tech_challenge_fase3/widgets/custom_button.dart';
+import 'package:tech_challenge_fase3/screens/widgets/custom_button.dart';
 
 import '../app_colors.dart';
-import '../widgets/custom_text_field.dart';
+import 'widgets/custom_text_field.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);

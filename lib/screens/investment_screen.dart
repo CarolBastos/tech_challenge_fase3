@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
-import 'package:tech_challenge_fase3/widgets/dashboard/charts/chart_investments.dart';
-import 'package:tech_challenge_fase3/widgets/dashboard/menu/custom_app_bar.dart';
-import 'package:tech_challenge_fase3/widgets/dashboard/menu/custom_drawer.dart';
+import 'package:tech_challenge_fase3/screens/widgets/dashboard/charts/chart_investments.dart';
+import 'package:tech_challenge_fase3/screens/widgets/dashboard/menu/custom_app_bar.dart';
+import 'package:tech_challenge_fase3/screens/widgets/dashboard/menu/custom_drawer.dart';
 import 'package:tech_challenge_fase3/models/user_state.dart';
 import '../app_colors.dart';
 

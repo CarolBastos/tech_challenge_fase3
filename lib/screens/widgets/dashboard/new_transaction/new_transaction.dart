@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
-import 'package:tech_challenge_fase3/widgets/custom_button.dart';
+import 'package:tech_challenge_fase3/screens/widgets/custom_button.dart';
 import 'package:provider/provider.dart';
 import 'package:tech_challenge_fase3/models/user_state.dart';
-import 'package:tech_challenge_fase3/widgets/dashboard/new_transaction/upload_transaction.dart';
+import 'package:tech_challenge_fase3/screens/widgets/dashboard/new_transaction/upload_transaction.dart';
 import 'package:tech_challenge_fase3/provider/transaction_provider.dart';
 
 import 'package:flutter_redux/flutter_redux.dart';
@@ -61,9 +61,10 @@ class _NewTransactionState extends State<NewTransaction> {
                     tipoTransacao = newValue;
                   });
                 },
-                items: tiposTransacao.map((tipo) {
-                  return DropdownMenuItem(value: tipo, child: Text(tipo));
-                }).toList(),
+                items:
+                    tiposTransacao.map((tipo) {
+                      return DropdownMenuItem(value: tipo, child: Text(tipo));
+                    }).toList(),
                 decoration: InputDecoration(
                   labelText: 'Tipo de Transação',
                   border: OutlineInputBorder(),
@@ -101,14 +102,17 @@ class _NewTransactionState extends State<NewTransaction> {
                   if (value == null || value.isEmpty) {
                     return 'Por favor, insira um valor.';
                   }
-                  final valorNumerico = double.tryParse(value.replaceAll(',', '.'));
+                  final valorNumerico = double.tryParse(
+                    value.replaceAll(',', '.'),
+                  );
                   if (valorNumerico == null) {
                     return 'Por favor, insira um valor numérico válido.';
                   }
                   if (valorNumerico <= 0) {
                     return 'O valor deve ser maior que zero.';
                   }
-                  if (tipoTransacao == 'Saque' || tipoTransacao == 'Transferência') {
+                  if (tipoTransacao == 'Saque' ||
+                      tipoTransacao == 'Transferência') {
                     if (valorNumerico > userState.balance) {
                       return 'Saldo insuficiente. Saldo atual: R\$ ${userState.balance.toStringAsFixed(2)}';
                     }
@@ -117,7 +121,10 @@ class _NewTransactionState extends State<NewTransaction> {
                 },
               ),
               SizedBox(height: 20),
-              UploadTransaction(key: uploadKey, onLoadingChange: _updateLoading),
+              UploadTransaction(
+                key: uploadKey,
+                onLoadingChange: _updateLoading,
+              ),
               SizedBox(height: 20),
               Center(
                 child: CustomButton(
@@ -130,7 +137,7 @@ class _NewTransactionState extends State<NewTransaction> {
                         await transactionProvider.addTransaction(
                           context: context,
                           type: tipoTransacao!,
-                          amount: valorController.text
+                          amount: valorController.text,
                         );
 
                         // Se a transação foi bem sucedida, faz o upload

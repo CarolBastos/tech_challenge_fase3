@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
 import 'package:tech_challenge_fase3/models/user_actions.dart';
-import 'package:tech_challenge_fase3/widgets/dashboard/charts/chart_transactions.dart';
-import 'package:tech_challenge_fase3/widgets/dashboard/menu/custom_app_bar.dart';
-import 'package:tech_challenge_fase3/widgets/dashboard/menu/custom_drawer.dart';
-import 'package:tech_challenge_fase3/widgets/dashboard/new_transaction/transaction_card.dart';
-import 'package:tech_challenge_fase3/widgets/dashboard/transaction_list/transaction_list.dart';
+import 'package:tech_challenge_fase3/screens/widgets/dashboard/charts/chart_transactions.dart';
+import 'package:tech_challenge_fase3/screens/widgets/dashboard/menu/custom_app_bar.dart';
+import 'package:tech_challenge_fase3/screens/widgets/dashboard/menu/custom_drawer.dart';
+import 'package:tech_challenge_fase3/screens/widgets/dashboard/new_transaction/transaction_card.dart';
+import 'package:tech_challenge_fase3/screens/widgets/dashboard/transaction_list/transaction_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tech_challenge_fase3/models/user_state.dart';
@@ -57,7 +57,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Future<void> getUserBalance(User user) async {
     if (!mounted) return;
-    
+
     final store = StoreProvider.of<AppState>(context);
     DocumentReference userRef = FirebaseFirestore.instance
         .collection('usuarios')
@@ -66,11 +66,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     DocumentSnapshot userDoc = await userRef.get();
 
     if (userDoc.exists) {
-      store.dispatch(UpdateUserAction(
-        uid: user.uid,
-        displayName: user.displayName ?? 'Usuário',
-        balance: (userDoc['saldo'] ?? 0.0).toDouble(),
-      ));
+      store.dispatch(
+        UpdateUserAction(
+          uid: user.uid,
+          displayName: user.displayName ?? 'Usuário',
+          balance: (userDoc['saldo'] ?? 0.0).toDouble(),
+        ),
+      );
     }
   }
 
