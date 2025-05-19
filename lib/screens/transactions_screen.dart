@@ -2,8 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
+import 'package:tech_challenge_fase3/provider/transaction_provider.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/transaction_list/transaction_list_filtered.dart';
 import 'package:tech_challenge_fase3/domain/models/user_state.dart';
 import 'components/dashboard/menu/custom_app_bar.dart';
@@ -20,7 +22,7 @@ class FilteredTransactionScreen extends StatefulWidget {
 class _FilteredTransactionScreenState extends State<FilteredTransactionScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-
+  
   DateTime? _selectedDate;
   double? _selectedValue;
   String? _selectedType;
@@ -62,6 +64,7 @@ class _FilteredTransactionScreenState extends State<FilteredTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final transactionProvider = Provider.of<TransactionProvider>(context);
     return StoreConnector<AppState, UserState>(
       converter: (store) => store.state.userState,
       builder: (context, userState) {
@@ -199,14 +202,14 @@ class _FilteredTransactionScreenState extends State<FilteredTransactionScreen> {
                   ]),
                 ),
                 // Widget TransactionList com filtros aplicados
-                SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    return TransactionListFiltered(
-                      data: _selectedDate,
-                      valor: _selectedValue,
-                      tipoTransferencia: _selectedType,
-                    );
-                  }, childCount: 1),
+                SliverToBoxAdapter(
+                  child: transactionProvider.isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : TransactionListFiltered(
+                          data: _selectedDate,
+                          valor: _selectedValue,
+                          tipoTransferencia: _selectedType,
+                        ),
                 ),
               ],
             ),

@@ -1,5 +1,3 @@
-// ignore_for_file: depend_on_referenced_packages
-
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
@@ -21,73 +19,77 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController(initialPage: 0);
   late UserApi _userApi;
+  late Future<void> _loadFuture;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final store = StoreProvider.of<AppState>(context);
     _userApi = UserApi(store);
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeUserData();
+    _loadFuture = _initializeUserData(); // Define aqui para evitar repetição
   }
 
   Future<void> _initializeUserData() async {
     await _userApi.createUserIfNotExists();
-    await _syncUserWithRedux();
-  }
-
-  Future<void> _syncUserWithRedux() async {
-    if (!mounted) return;
     await _userApi.syncUserWithRedux();
   }
 
   @override
   Widget build(BuildContext context) {
-    return StoreConnector<AppState, UserState>(
-      converter: (store) => store.state.userState,
-      builder: (context, userState) {
-        return Scaffold(
-          key: _scaffoldKey,
-          backgroundColor: AppColors.teaGreen,
-          appBar: CustomAppBar(scaffoldKey: _scaffoldKey),
-          drawer: const CustomDrawer(),
-          body: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              children: [
-                Text(
-                  "Olá, ${userState.displayName}! :)",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  "Saldo: R\$ ${userState.balance.toStringAsFixed(2)}",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 24),
-                Expanded(
-                  child: PageView(
-                    controller: _pageController,
-                    children: [
-                      SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            TransactionCard(),
-                            SizedBox(height: 24),
-                            TransactionList(),
-                          ],
-                        ),
+    return FutureBuilder<void>(
+      future: _loadFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return StoreConnector<AppState, UserState>(
+          converter: (store) => store.state.userState,
+          builder: (context, userState) {
+            return Scaffold(
+              key: _scaffoldKey,
+              backgroundColor: AppColors.teaGreen,
+              appBar: CustomAppBar(scaffoldKey: _scaffoldKey),
+              drawer: const CustomDrawer(),
+              body: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  children: [
+                    Text(
+                      "Olá, ${userState.displayName}! :)",
+                      style:
+                          const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      "Saldo: R\$ ${userState.balance.toStringAsFixed(2)}",
+                      style:
+                          const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 24),
+                    Expanded(
+                      child: PageView(
+                        controller: _pageController,
+                        children: [
+                          SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                TransactionCard(),
+                                const SizedBox(height: 24),
+                                TransactionList(),
+                              ],
+                            ),
+                          ),
+                          TransactionChartSummary(),
+                        ],
                       ),
-                      TransactionChartSummary(),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
