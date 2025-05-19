@@ -14,24 +14,43 @@ import 'screens/dashboard_screen.dart';
 import 'screens/welcome_screen.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart'; // Mantido para TransactionProvider
+import 'package:redux_persist/redux_persist.dart';
+import 'package:redux_persist_flutter/redux_persist_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await initializeDateFormatting('pt_BR', null);
 
-  // Criação do store Redux
+  // Configuração do Redux Persist (forma correta)
+  final persistor = Persistor<AppState>(
+    storage: FlutterStorage(),
+    serializer: JsonSerializer<AppState>(
+      (json) => json != null ? AppState.fromJson(json as Map<String, dynamic>) : null,
+    ),
+  );
+
+  // Carrega o estado persistido
+  AppState? initialState;
+  try {
+    initialState = await persistor.load();
+  } catch (e) {
+    print('Erro ao carregar estado persistido: $e');
+  }
+
+  // Criação do store Redux com persistência
   final store = Store<AppState>(
     appReducer,
-    initialState: AppState.initial(),
-    middleware: [thunkMiddleware],
+    initialState: initialState ?? AppState.initial(),
+    middleware: [
+      thunkMiddleware,
+      persistor.createMiddleware(),
+    ],
   );
 
   runApp(
     MultiProvider(
       providers: [
-        // Provider do Redux
-        // Mantemos o TransactionProvider como estava, pois não foi migrado para Redux
         ChangeNotifierProvider(create: (context) => TransactionProvider()),
       ],
       child: StoreProvider<AppState>(store: store, child: const MyApp()),

@@ -1,10 +1,8 @@
 // ignore_for_file: depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
-import 'package:tech_challenge_fase3/domain/models/user_actions.dart';
 import 'package:tech_challenge_fase3/domain/models/user_state.dart';
 import 'package:tech_challenge_fase3/data/api/user_api.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/charts/chart_transactions.dart';
@@ -22,36 +20,29 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final PageController _pageController = PageController(initialPage: 0);
-  final UserApi _userApi = UserApi();
+  late UserApi _userApi;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final store = StoreProvider.of<AppState>(context);
+    _userApi = UserApi(store);
+  }
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => _initializeUserData());
+    _initializeUserData();
   }
 
   Future<void> _initializeUserData() async {
     await _userApi.createUserIfNotExists();
-    await _loadBalanceToStore();
+    await _syncUserWithRedux();
   }
 
-  Future<void> _loadBalanceToStore() async {
+  Future<void> _syncUserWithRedux() async {
     if (!mounted) return;
-
-    final store = StoreProvider.of<AppState>(context);
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      final balance = await _userApi.getUserBalance();
-
-      store.dispatch(
-        UpdateUserAction(
-          uid: user.uid,
-          displayName: user.displayName ?? '',
-          balance: balance,
-        ),
-      );
-    }
+    await _userApi.syncUserWithRedux();
   }
 
   @override
@@ -100,5 +91,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
   }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:tech_challenge_fase3/app_state.dart';
 import 'package:tech_challenge_fase3/domain/business/auth_workflow.dart';
 import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
 import '../app_colors.dart';
@@ -17,14 +19,50 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = '';
   bool isLoading = false;
+  late AuthWorkflow _authWorkflow;
 
-  final AuthWorkflow _authWorkflow = AuthWorkflow();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final store = StoreProvider.of<AppState>(context);
+    _authWorkflow = AuthWorkflow(store);
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleLogin() async {
+    setState(() {
+      isLoading = true;
+      _errorMessage = '';
+    });
+
+    if (!_validate()) {
+      setState(() => isLoading = false);
+      return;
+    }
+
+    try {
+      await _authWorkflow.login(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, Routes.dashboard);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Erro ao fazer login. Verifique suas credenciais.';
+          isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -90,34 +128,6 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _handleLogin() async {
-    setState(() {
-      isLoading = true;
-      _errorMessage = '';
-    });
-
-    if (!_validate()) {
-      setState(() {
-        isLoading = false;
-      });
-      return;
-    }
-
-    try {
-      await _authWorkflow.login(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-
-      Navigator.pushReplacementNamed(context, Routes.dashboard);
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Erro ao fazer login. Verifique suas credenciais.';
-        isLoading = false;
-      });
-    }
   }
 
   bool _validate() {
