@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:tech_challenge_fase3/domain/business/auth_workflow.dart';
 import 'package:tech_challenge_fase3/routes.dart';
-import 'package:tech_challenge_fase3/screens/login_screen.dart';
 import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
 
 import '../app_colors.dart';
 import 'components/custom_text_field.dart';
+
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:tech_challenge_fase3/app_state.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -15,19 +17,27 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   String _errorMessage = '';
   bool isLoading = false;
+  late AuthWorkflow _authWorkflow;
 
-  final AuthWorkflow _authWorkflow = AuthWorkflow();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final store = StoreProvider.of<AppState>(context);
+    _authWorkflow = AuthWorkflow(store);
+  }
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _nameController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -41,23 +51,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               const SizedBox(height: 40),
               Image.asset(
-                'assets/images/ilustracao_cadastro.png',
+                'assets/images/ilustracao_register.png',
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 32),
               Text(
-                "Abrir Conta",
+                "Criar Conta",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.black,
                 ),
               ),
-              const SizedBox(height: 15),
               CustomTextField(
                 labelText: 'Nome',
-                placeholder: 'Digite seu nome completo',
+                placeholder: 'Digite seu nome',
                 controller: _nameController,
               ),
               const SizedBox(height: 10),
@@ -74,6 +82,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 controller: _passwordController,
               ),
               const SizedBox(height: 10),
+              CustomTextField(
+                labelText: 'Confirmar Senha',
+                placeholder: 'Confirme sua senha',
+                isPassword: true,
+                controller: _confirmPasswordController,
+              ),
+              const SizedBox(height: 10),
               if (_errorMessage.isNotEmpty)
                 Text(
                   _errorMessage,
@@ -85,26 +100,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
-                  );
+                  Navigator.pushReplacementNamed(context, Routes.login);
                 },
                 child: Text(
-                  'Já tem uma conta? Faça login',
+                  'Já tenho uma conta',
                   style: TextStyle(color: AppColors.primary),
                 ),
               ),
               const SizedBox(height: 8),
               CustomButton(
-                onPressed: () {
-                  isLoading ? null : _register();
-                },
+                onPressed: isLoading ? null : _handleRegister,
                 width: 144,
-                text: 'Cadastrar',
-                backgroundColor: AppColors.error,
+                text: 'Criar Conta',
+                backgroundColor: AppColors.primary,
                 isLoading: isLoading,
               ),
             ],
@@ -114,54 +122,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  void _register() async {
+  Future<void> _handleRegister() async {
+    setState(() {
+      isLoading = true;
+      _errorMessage = '';
+    });
+
+    if (!_validate()) {
+      setState(() => isLoading = false);
+      return;
+    }
+
     try {
-      setState(() {
-        isLoading = true;
-        _errorMessage = '';
-      });
-
-      if (!_validate()) {
-        setState(() {
-          isLoading = false;
-        });
-        return;
-      }
-
       await _authWorkflow.register(
-        email: _emailController.text.trim(),
+        email: _emailController.text,
         password: _passwordController.text,
-        name: _nameController.text.trim(),
+        name: _nameController.text,
       );
 
-      Navigator.pushReplacementNamed(context, Routes.login);
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, Routes.dashboard);
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Erro ao criar conta. Tente novamente.';
+          isLoading = false;
+        });
+      }
     }
   }
 
   bool _validate() {
     if (_nameController.text.isEmpty) {
-      setState(() {
-        _errorMessage = 'Informe o nome';
-      });
+      _errorMessage = 'Informe seu nome';
       return false;
     }
 
     if (_emailController.text.isEmpty) {
-      setState(() {
-        _errorMessage = 'Informe o email';
-      });
+      _errorMessage = 'Informe o email';
       return false;
     }
 
     if (_passwordController.text.isEmpty) {
-      setState(() {
-        _errorMessage = 'Informe a senha';
-      });
+      _errorMessage = 'Informe a senha';
+      return false;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _errorMessage = 'As senhas não coincidem';
       return false;
     }
 
