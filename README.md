@@ -9,6 +9,10 @@ Este projeto é uma aplicação de gerenciamento financeiro desenvolvida em Flut
 - Flutter
 - Cloud Firestore
 - Firebase Storage
+- Redux
+- Flutter Secure Storage
+- Firebase Auth
+- Encrypt
 
 ## Como Configurar e Executar
 
@@ -36,6 +40,15 @@ Este projeto é uma aplicação de gerenciamento financeiro desenvolvida em Flut
    ```bash
    flutter run
    ```
+
+## Metodologia utilizada
+
+### Arquitetura
+
+### Criptografia
+
+Para a criptografia, foi utilizada a abordagem simétrica no client-side utilizando a biblioteca `encrypt` e `flutter_secure_storage` (esse último para armazenar a chave AES localmente no dispositivo) com a política de rotação de chaves. 
+Foi considerada para o presente projeto, o nome e o e-mail do usuário como dados sensíveis. Os dados foram criptografados e enviados para o Firestore. Nesse caso, não foi necessário descriptografar os dados pois para utilizá-los no UI, eles estão vindo do Firebase Auth.
 
 ## Contribuições
 
