@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tech_challenge_fase3/utils/generate_key.dart';
 
 class UserApi {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -12,10 +13,13 @@ class UserApi {
     final userRef = _firestore.collection('usuarios').doc(user.uid);
     final userDoc = await userRef.get();
 
+    final encryptedName = await encryptText(user.displayName ?? '');
+    final encryptedEmail = await encryptText(user.email ?? '');
+
     if (!userDoc.exists) {
       await userRef.set({
-        'nome': user.displayName ?? '',
-        'email': user.email,
+        'nome': encryptedName,
+        'email': encryptedEmail,
         'saldo': 0.0,
         'criado_em': FieldValue.serverTimestamp(),
       });
