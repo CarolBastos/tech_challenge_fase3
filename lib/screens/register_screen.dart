@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:tech_challenge_fase3/app_state.dart';
 import 'package:tech_challenge_fase3/domain/business/auth_workflow.dart';
 import 'package:tech_challenge_fase3/routes.dart';
 import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
@@ -6,11 +8,8 @@ import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
 import '../app_colors.dart';
 import 'components/custom_text_field.dart';
 
-import 'package:flutter_redux/flutter_redux.dart';
-import 'package:tech_challenge_fase3/app_state.dart';
-
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({Key? key}) : super(key: key);
+  const RegisterScreen({super.key});
 
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
@@ -51,7 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               const SizedBox(height: 40),
               Image.asset(
-                'assets/images/ilustracao_register.png',
+                'assets/images/ilustracao_cadastro.png',
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
