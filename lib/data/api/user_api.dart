@@ -1,10 +1,31 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:redux/redux.dart';
+import 'package:tech_challenge_fase3/app_state.dart';
+import 'package:tech_challenge_fase3/domain/models/user_actions.dart';
 import 'package:tech_challenge_fase3/utils/generate_key.dart';
 
 class UserApi {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final Store<AppState> store;
+
+  UserApi(this.store);
+
+  Future<void> syncUserWithRedux() async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+
+    final balance = await getUserBalance();
+    
+    store.dispatch(UpdateUserAction(
+      uid: user.uid,
+      displayName: user.displayName ?? 'Usuário',
+      balance: balance,
+    ));
+  }
 
   Future<void> createUserIfNotExists() async {
     final user = _auth.currentUser;
@@ -23,6 +44,13 @@ class UserApi {
         'saldo': 0.0,
         'criado_em': FieldValue.serverTimestamp(),
       });
+      
+      // Atualiza o estado do Redux
+      store.dispatch(UpdateUserAction(
+        uid: user.uid,
+        displayName: user.displayName ?? 'Usuário',
+        balance: 0.0,
+      ));
     }
   }
 

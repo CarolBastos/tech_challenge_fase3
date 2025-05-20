@@ -5,23 +5,22 @@ import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
 import 'package:tech_challenge_fase3/data/api/transaction_api.dart';
 import 'package:tech_challenge_fase3/data/api/user_api.dart';
-import 'package:tech_challenge_fase3/domain/models/user_actions.dart';
 import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-
 import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
 
 class EditTransaction extends StatefulWidget {
   final DateTime data;
   final String tipoTransacao;
   final String valor;
 
-  EditTransaction({
+  const EditTransaction({
+    Key? key,
     required this.data,
     required this.tipoTransacao,
     required this.valor,
-  });
+  }) : super(key: key);
 
   @override
   _EditTransactionState createState() => _EditTransactionState();
@@ -30,17 +29,31 @@ class EditTransaction extends StatefulWidget {
 class _EditTransactionState extends State<EditTransaction> {
   late String? tipoTransacao;
   late TextEditingController valorController;
-  List<String> tiposTransacao = ['Depósito', 'Saque', 'Transferência'];
+  final List<String> tiposTransacao = ['Depósito', 'Saque', 'Transferência'];
   bool isLoading = false;
   final _formKey = GlobalKey<FormState>();
-  final _transactionApi = TransactionApi();
-  final UserApi _userApi = UserApi();
+  final TransactionApi _transactionApi = TransactionApi();
+  late UserApi _userApi;
+  late Store<AppState> _store;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _store = StoreProvider.of<AppState>(context);
+    _userApi = UserApi(_store);
+  }
 
   @override
   void initState() {
     super.initState();
     tipoTransacao = widget.tipoTransacao;
     valorController = TextEditingController(text: widget.valor);
+  }
+
+  @override
+  void dispose() {
+    valorController.dispose();
+    super.dispose();
   }
 
   @override
@@ -58,7 +71,7 @@ class _EditTransactionState extends State<EditTransaction> {
               color: AppColors.white,
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           DropdownButtonFormField<String>(
             value: tipoTransacao,
             onChanged: (newValue) {
@@ -66,13 +79,15 @@ class _EditTransactionState extends State<EditTransaction> {
                 tipoTransacao = newValue;
               });
             },
-            items:
-                tiposTransacao.map((tipo) {
-                  return DropdownMenuItem(value: tipo, child: Text(tipo));
-                }).toList(),
+            items: tiposTransacao.map((tipo) {
+              return DropdownMenuItem(
+                value: tipo,
+                child: Text(tipo),
+              );
+            }).toList(),
             decoration: InputDecoration(
               labelText: 'Tipo de Transação',
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
               filled: true,
               fillColor: AppColors.white,
             ),
@@ -84,7 +99,7 @@ class _EditTransactionState extends State<EditTransaction> {
               return null;
             },
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             'Valor',
             style: TextStyle(
@@ -93,13 +108,13 @@ class _EditTransactionState extends State<EditTransaction> {
               color: AppColors.white,
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           TextFormField(
             controller: valorController,
             keyboardType: TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
               labelText: '00,00',
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
               filled: true,
               fillColor: AppColors.white,
             ),
@@ -117,14 +132,10 @@ class _EditTransactionState extends State<EditTransaction> {
               return null;
             },
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Center(
             child: CustomButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  isLoading ? null : editarTransacao();
-                }
-              },
+              onPressed: isLoading ? null : () => _handleSubmit(),
               text: 'Salvar alterações',
               backgroundColor: AppColors.darkTeal,
               isLoading: isLoading,
@@ -135,24 +146,22 @@ class _EditTransactionState extends State<EditTransaction> {
     );
   }
 
-  Future<void> editarTransacao() async {
+  Future<void> _handleSubmit() async {
+    if (!_formKey.currentState!.validate()) return;
+    await _editarTransacao();
+  }
+
+  Future<void> _editarTransacao() async {
     final usuario = FirebaseAuth.instance.currentUser;
 
     if (usuario == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Usuário não autenticado.'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      _showSnackBar('Usuário não autenticado.', Colors.orange);
       return;
     }
 
     try {
       FocusScope.of(context).unfocus();
-      setState(() {
-        isLoading = true;
-      });
+      setState(() => isLoading = true);
 
       await _transactionApi.editTransaction(
         date: widget.data,
@@ -160,44 +169,30 @@ class _EditTransactionState extends State<EditTransaction> {
         newValue: valorController.text,
       );
 
-      final newBalance = await _userApi.getUserBalanceEditTransaction(
-        usuario.uid,
-      );
+      // Atualiza o estado do usuário diretamente via UserApi
+      await _userApi.syncUserWithRedux();
 
-      final store = StoreProvider.of<AppState>(context);
-      store.dispatch(
-        UpdateUserAction(
-          uid: usuario.uid,
-          displayName: store.state.userState.displayName,
-          balance: newBalance,
-        ),
-      );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Transação editada com sucesso!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      setState(() {
-        tipoTransacao = null;
-        valorController.clear();
-        isLoading = false;
-      });
-
-      Navigator.of(context).pop();
+      _showSnackBar('Transação editada com sucesso!', Colors.green);
+      
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao editar transação: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      _showSnackBar('Erro ao editar transação: $e', Colors.red);
+    } finally {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
     }
+  }
+
+  void _showSnackBar(String message, Color color) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+      ),
+    );
   }
 }
