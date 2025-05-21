@@ -33,7 +33,10 @@ class _NewTransactionState extends State<NewTransaction> {
 
   @override
   Widget build(BuildContext context) {
-    final transactionProvider = context.read<TransactionProvider>();
+    final transactionProvider = Provider.of<TransactionProvider>(
+      context,
+      listen: false,
+    );
 
     return StoreConnector<AppState, UserState>(
       converter: (store) => store.state.userState,
@@ -119,13 +122,9 @@ class _NewTransactionState extends State<NewTransaction> {
                 },
               ),
               SizedBox(height: 20),
-              Visibility(
-                visible: tipoTransacao != null,
-                maintainState: true,
-                child: UploadTransaction(
-                  key: uploadKey,
-                  onLoadingChange: _updateLoading,
-                ),
+              UploadTransaction(
+                key: uploadKey,
+                onLoadingChange: _updateLoading,
               ),
               SizedBox(height: 20),
               Center(
