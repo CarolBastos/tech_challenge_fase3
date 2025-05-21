@@ -5,6 +5,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
 import 'package:tech_challenge_fase3/domain/models/user_state.dart';
+import 'package:tech_challenge_fase3/screens/components/dashboard/cards/saldo.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/transaction_list/transaction_list_filtered.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/menu/custom_app_bar.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/menu/custom_drawer.dart';
@@ -76,8 +77,10 @@ class _FilteredTransactionScreenState extends State<FilteredTransactionScreen> {
                   slivers: [
                     SliverList(
                       delegate: SliverChildListDelegate([
-                        Text("Olá, ${userState.displayName}! :)", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                        Text("Saldo: R\$ ${userState.balance.toStringAsFixed(2)}", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                        SaldoCard(
+                          cardTitle: "Saldo total",
+                          valor: userState.balance.toStringAsFixed(2),
+                        ),
                         const SizedBox(height: 24),
                         Card(
                           elevation: 5,

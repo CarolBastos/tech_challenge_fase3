@@ -3,6 +3,7 @@ import 'package:flutter_redux/flutter_redux.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
 import 'package:tech_challenge_fase3/domain/models/user_state.dart';
 import 'package:tech_challenge_fase3/data/api/user_api.dart';
+import 'package:tech_challenge_fase3/screens/components/dashboard/cards/Saldo.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/charts/chart_transactions.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/menu/custom_app_bar.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/menu/custom_drawer.dart';
@@ -58,14 +59,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   children: [
                     Text(
-                      "Olá, ${userState.displayName}! :)",
-                      style:
-                          const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      "Olá, ${userState.displayName}",
+                      textAlign: TextAlign.left,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
-                    Text(
-                      "Saldo: R\$ ${userState.balance.toStringAsFixed(2)}",
-                      style:
-                          const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    const SizedBox(height: 24),
+                    SaldoCard(
+                      cardTitle: "Saldo total",
+                      valor: userState.balance.toStringAsFixed(2),
                     ),
                     const SizedBox(height: 24),
                     Expanded(
