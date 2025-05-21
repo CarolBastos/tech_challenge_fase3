@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:provider/provider.dart';
 import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
-import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
-import 'package:provider/provider.dart';
 import 'package:tech_challenge_fase3/domain/models/user_state.dart';
-import 'package:tech_challenge_fase3/screens/components/dashboard/new_transaction/upload_transaction.dart';
 import 'package:tech_challenge_fase3/provider/transaction_provider.dart';
-
-import 'package:flutter_redux/flutter_redux.dart';
+import 'package:tech_challenge_fase3/screens/components/custom_button.dart';
+import 'package:tech_challenge_fase3/screens/components/dashboard/new_transaction/upload_transaction.dart';
 
 class NewTransaction extends StatefulWidget {
+  const NewTransaction({super.key});
+
   @override
   _NewTransactionState createState() => _NewTransactionState();
 }
@@ -32,10 +33,7 @@ class _NewTransactionState extends State<NewTransaction> {
 
   @override
   Widget build(BuildContext context) {
-    final transactionProvider = Provider.of<TransactionProvider>(
-      context,
-      listen: false,
-    );
+    final transactionProvider = context.read<TransactionProvider>();
 
     return StoreConnector<AppState, UserState>(
       converter: (store) => store.state.userState,
@@ -121,9 +119,13 @@ class _NewTransactionState extends State<NewTransaction> {
                 },
               ),
               SizedBox(height: 20),
-              UploadTransaction(
-                key: uploadKey,
-                onLoadingChange: _updateLoading,
+              Visibility(
+                visible: tipoTransacao != null,
+                maintainState: true,
+                child: UploadTransaction(
+                  key: uploadKey,
+                  onLoadingChange: _updateLoading,
+                ),
               ),
               SizedBox(height: 20),
               Center(
