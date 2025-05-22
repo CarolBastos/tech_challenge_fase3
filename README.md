@@ -59,6 +59,7 @@ Este projeto é uma aplicação de gerenciamento financeiro desenvolvida em Flut
 
 ### Organização seguindo princípios de Clean Architecture:
 
+```shell
 lib/
 ├── data/
 │   ├── api/
@@ -81,6 +82,7 @@ lib/
 │   ├── transactions_screen.dart
 │   └── welcome_screen.dart
 └── main.dart
+```
 
 ### Criptografia
 
