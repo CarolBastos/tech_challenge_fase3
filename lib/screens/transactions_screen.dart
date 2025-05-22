@@ -6,6 +6,8 @@ import 'package:tech_challenge_fase3/app_colors.dart';
 import 'package:tech_challenge_fase3/app_state.dart';
 import 'package:tech_challenge_fase3/domain/models/user_state.dart';
 import 'package:tech_challenge_fase3/provider/transaction_provider.dart';
+import 'package:tech_challenge_fase3/screens/components/dashboard/cards/saldo.dart';
+import 'package:tech_challenge_fase3/screens/components/dashboard/transaction_list/transaction_list_filtered.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/menu/custom_app_bar.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/menu/custom_drawer.dart';
 import 'package:tech_challenge_fase3/screens/components/dashboard/transaction_list/transaction_list_filtered.dart';
@@ -144,17 +146,80 @@ class _FilteredTransactionScreenState extends State<FilteredTransactionScreen> {
 
                 return CustomScrollView(
                   slivers: [
-                    SliverToBoxAdapter(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Olá, ${userState.displayName}! :)", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                          Text("Saldo: R\$ ${userState.balance.toStringAsFixed(2)}", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 24),
-                          _buildFilterCard(),
-                          const SizedBox(height: 24),
-                        ],
-                      ),
+                    SliverList(
+                      delegate: SliverChildListDelegate([
+                        SaldoCard(
+                          cardTitle: "Saldo total",
+                          valor: userState.balance.toStringAsFixed(2),
+                        ),
+                        const SizedBox(height: 24),
+                        Card(
+                          elevation: 5,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
+                                  const Text("Filtrar Transações", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                  const SizedBox(height: 16),
+                                  InkWell(
+                                    onTap: () => _selectDate(context),
+                                    child: InputDecorator(
+                                      decoration: const InputDecoration(labelText: "Data", border: OutlineInputBorder()),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(_selectedDate == null
+                                              ? "Selecione uma data"
+                                              : DateFormat('dd/MM/yyyy').format(_selectedDate!)),
+                                          const Icon(Icons.calendar_today),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _valueController,
+                                    decoration: const InputDecoration(labelText: "Valor", border: OutlineInputBorder()),
+                                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                                    validator: (value) {
+                                      if (value!.isNotEmpty && double.tryParse(value) == null) {
+                                        return "Insira um valor válido";
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  DropdownButtonFormField<String>(
+                                    value: _selectedType,
+                                    decoration: const InputDecoration(labelText: "Tipo de Transferência", border: OutlineInputBorder()),
+                                    items: tiposTransacao.map((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      setState(() => _selectedType = newValue);
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      ElevatedButton(onPressed: _applyFilters, child: const Text("Aplicar Filtros")),
+                                      TextButton(onPressed: _clearFilters, child: const Text("Limpar Filtros")),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                      ]),
                     ),
                     SliverList(
                       delegate: SliverChildBuilderDelegate(
